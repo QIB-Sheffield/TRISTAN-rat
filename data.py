@@ -1,9 +1,16 @@
 import os
 import pandas as pd
+from pathlib import Path
 
-def results_path():
+def results_path(study):
+    
+    dirpath = os.getcwd()
+    path = Path(dirpath + '\\' + 'pytristan' + '\\' + 'Results' + study)
+    
+    if not os.path.exists(path): 
+        os.mkdir(path)
 
-    return "C:\\Users\\steve\\Dropbox\\Projects\\IMI-TRISTAN\\WP2\\pytristan\\Results\\"
+    return str(path) + "\\"
 
 def description(filename):
 
@@ -15,18 +22,21 @@ def description(filename):
     y['day'] = int(x[3])
     return y
 
-def example():
+def example(study, filename):
 
-    filename = "Asunaprevir_MSD_Rat2_2_Signals"
-    filename = "Asunaprevir_MSD_Rat5_1_Signals"
-    file = "C:\\Users\\steve\\Dropbox\\Projects\\IMI-TRISTAN\\WP2\\pytristan\\SixTestCompounds\\Asunaprevir\\" + filename +".csv"
+    #filename = "Asunaprevir_MSD_Rat2_2_Signals"
+    #filename = "Asunaprevir_MSD_Rat5_1_Signals"
+    #study = SixTestCompounds
+
+    dirpath = os.getcwd()
+    file = Path(dirpath + '\\' + 'pytristan' + '\\' + 'Data' + study + '\\' + 'Example_' + filename + '.csv')
     df = pd.read_csv(file)
     return df, filename
 
 def folder(study):
-
-    path = "C:\\Users\\steve\\Dropbox\\Projects\\IMI-TRISTAN\\WP2\\pytristan\\Data" + study
-
+    
+    dirpath = os.getcwd()
+    path = Path(dirpath + '\\' + 'pytristan' + '\\' + 'Data' + study)
     files = [item.path for item in _scan_tree(path) if item.is_file()]
     filenames = [os.path.basename(path) for path in files]
     filenames = [os.path.splitext(path)[0] for path in filenames]
@@ -40,5 +50,3 @@ def _scan_tree(directory):
             yield from _scan_tree(entry.path)
         else:
             yield entry
-
-
