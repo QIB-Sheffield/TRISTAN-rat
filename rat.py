@@ -100,8 +100,8 @@ def propagate_2cxm(t, ca, KP, KE, KB):
 class TristanRat():
 
     # Internal time resolution & acquisition time
-    _tstep = 0.5             # sec
-    _tmax = 40*60.0            # Total acquisition time (sec)
+    _tstep = 0.5            # sec
+    _tmax = 40*60.0         # Total acquisition time (sec)
 
     # Experimental variables
     tstart = 4.6*60         # Injection start (sec)
@@ -119,8 +119,16 @@ class TristanRat():
                         # Randomly chosen
 
     # Liver parameters
-    Fb = 3.61/60        # Blood flow (mL/sec/mL)
+    Fb = 2.27/60        # Blood flow (mL/sec/mL) 
                         # https://doi.org/10.1021/acs.molpharmaceut.1c00206
+                        # (Changed from 3.61/60 on 07/03/2022)
+	                    # From Brown the cardiac output of rats is 110.4 mL/min (table 3-1) ~ 6.62L/h
+	                    # From table 3-4, sum of hepatic artery and portal vein blood flow is 17.4% of total cardiac output ~ 1.152 L/h
+	                    # Mass of liver is 9.15g, with density of 1.08 kg/L, therefore ~8.47mL
+                        #  9.18g refers to the whole liver, i.e. intracellular tissue + extracellular space + blood
+ 	                    # Dividing 1.152L/h for 8.47mL we obtain ~2.27 mL/h/mL liver
+	                    # Calculation done with values in Table S2 of our article lead to the same results
+
     E = 0.4             # Gadoxetate extraction fraction
     veL = 0.230         # Liver extracellular volumen (mL/mL)
     Th = 20*60          # Hepatocellular mean transit time (sec)
