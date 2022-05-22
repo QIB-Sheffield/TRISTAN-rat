@@ -114,109 +114,9 @@ def fit_data_example():
         print("Please close the file before saving data")
 
 
-def fit_study():
+def report_six_test_compounds(all, study):
 
-    study = "SixTestCompounds"
-    # study = "MultipleDosing"
-    all_vars = None
-    files, filenames = data.folder(study)
-    for f, file in enumerate(files):
-
-        print("Fitting ", 100*f/len(files), "%")
-        print(filenames[f])
-        descr = data.description(filenames[f])
-
-        # Perform the fit
-        df_data = pd.read_csv(file)
-        ts = df_data["Time (s)"].values
-        rat = TristanRat()
-        rat.dt = ts[1] - ts[0]
-        rat.dose = 0.0075
-        if descr['site'] == 'MSD':
-            rat.tstart = 4.0*60 + 45  # no info - check       
-            rat.tduration = 30  # no info - check
-            rat.field_strength = 7.0                              
-            rat.FA = 30   # From DICOM header - check
-            rat.TR = 5.8/1000
-        elif descr['site'] == 'Sanofi': 
-            rat.tstart = 4.0*60 + 45         
-            rat.tduration = 30  
-            rat.field_strength = 7.0                                 
-            rat.FA = 20   
-            rat.TR = 5.8/1000
-        elif descr['site'] == 'Bayer':
-            rat.tstart = 4.0*60 + 45 + 7        
-            rat.tduration = 22  
-            rat.field_strength = 4.7                                
-            rat.FA = 20   
-            rat.TR = 5.8/1000
-        elif descr['site'] == 'Antaros':
-            rat.tstart = 3.0*60 + 45 + 7               
-            rat.tduration = 15  
-            rat.field_strength = 7.0                  
-            rat.FA = 30   
-            rat.TR = 36.0/1000 # check
-        rat.set_spleen_data(ts, df_data["Spleen (a.u.)"].values)
-        rat.set_liver_data(ts, df_data["Liver (a.u.)"].values)
-        # rat.fit_direct()
-        # rat.fit()
-        # rat.fit_joint()
-        rat.fit_standard()
-
-        # Create the plot
-        save_file = data.results_path() + 'fig_' + filenames[f] + ".png"
-        plt.plot(rat.t, rat.spleen_signal, color='red')
-        plt.plot(rat.spleen_sampling_times, rat.spleen_data, marker="x", color='red', linewidth=0)
-        plt.plot(rat.t, rat.liver_signal, color='green')
-        plt.plot(rat.liver_sampling_times, rat.liver_data, marker="x", color='green', linewidth=0)
-        plt.xlabel("Time (sec)")
-        plt.ylabel('Signal (a.u.)')
-        # plt.ylim(bottom=0)
-        plt.ylim(bottom=0, top=16)
-        plt.title(descr['drug'] + ' (Rat ' + str(descr['subject']) + ', Day ' + str(descr['day']) + ')')
-        plt.savefig(save_file)
-        plt.clf()
-
-        # Save time curves
-        save_file = data.results_path() + 'fit_' + filenames[f] + ".csv"
-        df_results = pd.DataFrame({"Time fit (s)": rat.t})
-        df_results["Spleen fit (a.u.)"] = rat.spleen_signal
-        df_results["Liver fit (a.u.)"] = rat.liver_signal
-        df_output = pd.concat([df_data, df_results], axis=1)
-        try:
-            df_output.to_csv(save_file)
-        except:
-            print("Can't write to file ", save_file)
-            print("Please close the file before saving data")
-
-        # Save parameter file
-        vars = rat.export_variables()
-        name = pd.DataFrame({"Data file": [file]*vars.shape[0]})
-        drug = pd.DataFrame({"Drug": [descr['drug']]*vars.shape[0]})
-        site = pd.DataFrame({"Site": [descr['site']]*vars.shape[0]})
-        subj = pd.DataFrame({"Rat": [descr['subject']]*vars.shape[0]})
-        day = pd.DataFrame({"Day": [descr['day']]*vars.shape[0]})
-        vars = pd.concat([name, drug, site, subj, day, vars], axis=1)
-
-        # Add to main output
-        if all_vars is None:
-            all_vars = vars
-        else:
-            all_vars = pd.concat([all_vars, vars], axis=0)
-
-    save_file = data.results_path() + 'all_' + study + ".csv"
-    try:
-        all_vars.to_csv(save_file)
-    except:
-        print("Can't write to file ", save_file)
-        print("Please close the file before saving data")
-
-    if study == "SixTestCompounds":
-        report_six_test_compounds(all_vars)
-
-def report_six_test_compounds(all):
-
-    save_path = data.results_path() + 'all_' + "SixTestCompounds" + '_'
+    save_path = data.results_path(study) + 'all_' + "SixTestCompounds" + '_'
 
     figdrug, axdrug = plt.subplots(2, 3)
     row = 0
@@ -307,6 +207,105 @@ def report_six_test_compounds(all):
 #    figdrug.close()
 
 
+def fit_study(study):
+    
+    all_vars = None
+    files, filenames = data.folder(study)
+    for f, file in enumerate(files):
+
+        print("Fitting ", 100*f/len(files), "%")
+        print(filenames[f])
+        descr = data.description(filenames[f])
+
+        # Perform the fit
+        df_data = pd.read_csv(file)
+        ts = df_data["Time (s)"].values
+        rat = TristanRat()
+        rat.dt = ts[1] - ts[0]
+        rat.dose = 0.0075
+        if descr['site'] == 'MSD':
+            rat.tstart = 4.0*60 + 45  # no info - check       
+            rat.tduration = 30  # no info - check
+            rat.field_strength = 7.0                              
+            rat.FA = 30   # From DICOM header - check
+            rat.TR = 5.8/1000
+        elif descr['site'] == 'Sanofi': 
+            rat.tstart = 4.0*60 + 45         
+            rat.tduration = 30  
+            rat.field_strength = 7.0                                 
+            rat.FA = 20   
+            rat.TR = 5.8/1000
+        elif descr['site'] == 'Bayer':
+            rat.tstart = 4.0*60 + 45 + 7        
+            rat.tduration = 22  
+            rat.field_strength = 4.7                                
+            rat.FA = 20   
+            rat.TR = 5.8/1000
+        elif descr['site'] == 'Antaros':
+            rat.tstart = 3.0*60 + 45 + 7               
+            rat.tduration = 15  
+            rat.field_strength = 7.0                  
+            rat.FA = 30   
+            rat.TR = 36.0/1000 # check
+        rat.set_spleen_data(ts, df_data["Spleen (a.u.)"].values)
+        rat.set_liver_data(ts, df_data["Liver (a.u.)"].values)
+        # rat.fit_direct()
+        # rat.fit()
+        # rat.fit_joint()
+        rat.fit_standard()
+
+        # Create the plot
+        save_file = data.results_path(study) + 'fig_' + filenames[f] + ".png"
+        plt.plot(rat.t, rat.spleen_signal, color='red')
+        plt.plot(rat.spleen_sampling_times, rat.spleen_data, marker="x", color='red', linewidth=0)
+        plt.plot(rat.t, rat.liver_signal, color='green')
+        plt.plot(rat.liver_sampling_times, rat.liver_data, marker="x", color='green', linewidth=0)
+        plt.xlabel("Time (sec)")
+        plt.ylabel('Signal (a.u.)')
+        # plt.ylim(bottom=0)
+        plt.ylim(bottom=0, top=16)
+        plt.title(descr['drug'] + ' (Rat ' + str(descr['subject']) + ', Day ' + str(descr['day']) + ')')
+        plt.savefig(save_file)
+        plt.clf()
+
+        # Save time curves
+        save_file = data.results_path(study) + 'fit_' + filenames[f] + ".csv"
+        df_results = pd.DataFrame({"Time fit (s)": rat.t})
+        df_results["Spleen fit (a.u.)"] = rat.spleen_signal
+        df_results["Liver fit (a.u.)"] = rat.liver_signal
+        df_output = pd.concat([df_data, df_results], axis=1)
+        try:
+            df_output.to_csv(save_file)
+        except:
+            print("Can't write to file ", save_file)
+            print("Please close the file before saving data")
+
+        # Save parameter file
+        vars = rat.export_variables()
+        name = pd.DataFrame({"Data file": [file]*vars.shape[0]})
+        drug = pd.DataFrame({"Drug": [descr['drug']]*vars.shape[0]})
+        site = pd.DataFrame({"Site": [descr['site']]*vars.shape[0]})
+        subj = pd.DataFrame({"Rat": [descr['subject']]*vars.shape[0]})
+        day = pd.DataFrame({"Day": [descr['day']]*vars.shape[0]})
+        vars = pd.concat([name, drug, site, subj, day, vars], axis=1)
+
+        # Add to main output
+        if all_vars is None:
+            all_vars = vars
+        else:
+            all_vars = pd.concat([all_vars, vars], axis=0)
+
+    save_file = data.results_path(study) + 'all_' + study + ".csv"
+    try:
+        all_vars.to_csv(save_file)
+    except:
+        print("Can't write to file ", save_file)
+        print("Please close the file before saving data")
+
+    if study == "SixTestCompounds":
+        report_six_test_compounds(all_vars, study)
+
+
 def run_all():
 
     plot_time_curves()
@@ -321,7 +320,6 @@ def run_all():
 # noise_sensitivity()
 # simulate_measurement()
 # fit_data_example()
-fit_study()
+fit_study("MultipleDosing")
 
 # run_all()
-
