@@ -10,10 +10,11 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 import data
+from typing import Tuple
 
 def remove_data_errors(effect_size_data: pd.DataFrame,
                         study: str
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     
     data_pivoted = pd.pivot_table(effect_size_data, values = 'Value', columns=['Symbol'],
                    index=['Drug', 'Site', 'Site_drug', 'Rat', 'Day'])
@@ -32,7 +33,7 @@ def remove_data_errors(effect_size_data: pd.DataFrame,
 
 def get_stats(rats: pd.DataFrame,
             variables: list
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     
     rats['pct_change'] = rats.pct_change(axis=1).mul(100)[2]
     rats['diff'] = rats[1] - rats[2]

@@ -2,4 +2,4 @@ pandas
 numpy
 matplotlib
 scipy
-typing
+seaborn
