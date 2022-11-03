@@ -58,7 +58,7 @@ def get_path(study: str,
         related to study of choice in string format.
     """
     cwd = os.getcwd()
-    path = f"{cwd}\\..\\{folder}\\{study}\\"
+    path = f"{cwd}\\{folder}\\{study}\\"
     
     return path
 
@@ -152,7 +152,7 @@ def get_results_folder(study: str,
                        file_type: str
 ) -> str:
     
-    make_dir('..\\results')
+    make_dir('results')
     parent_dir = get_path(study, 'results')
     make_dir(parent_dir)
     dt_string = get_date_time()
