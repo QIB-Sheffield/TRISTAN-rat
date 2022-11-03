@@ -14,7 +14,11 @@ import math
 import data
 import plots
 from rat import TristanRat
-from typing import Dict, TypedDict, List, Tuple
+if sys.version_info >= (3, 8):
+    from typing import Dict, TypedDict, List, Tuple
+else:
+    from typing import Dict, List, Tuple
+    from typing_extensions import TypedDict
 
 
 def split_groups(files: list,

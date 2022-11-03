@@ -11,8 +11,12 @@ import sys
 import pandas as pd
 import glob
 from pathlib import Path
-from typing import Dict, TypedDict, List, Tuple
 from datetime import datetime
+if sys.version_info >= (3, 8):
+    from typing import Dict, TypedDict, List, Tuple
+else:
+    from typing import Dict, List, Tuple
+    from typing_extensions import TypedDict
 
 
 # Helper functions
@@ -42,7 +46,7 @@ def make_dir(path: Path
 # Folder paths
 def get_path(study: str,
             folder: str,
-) -> tuple[str, str]:
+) -> Tuple[str, str]:
     """Gets data/results folderpath of chosen study.
     
      Args:
@@ -62,7 +66,7 @@ def get_path(study: str,
 # Data filenames & filepaths
 def get_files(study: str,
                 dataset: str
-) -> tuple[list, list]:
+) -> Tuple[list, list]:
     """Gets list of filepaths and filenames.
     
     Searches dataset folder within chosen study and returns

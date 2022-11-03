@@ -9,6 +9,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import data
+import sys
+if sys.version_info >= (3, 8):
+    from typing import Dict, TypedDict, List, Tuple
+else:
+    from typing import Dict, List, Tuple
+    from typing_extensions import TypedDict
 
 
 # Define default settings for plots
