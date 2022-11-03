@@ -137,7 +137,7 @@ def get_subdir(parentdir: str,
     Returns:
         Subdirectory path name in string format.    
     """
-    subdir_path = f"{parentdir}\\{subdir_name}\\"
+    subdir_path = f"{parentdir}{subdir_name}\\"
     make_dir(subdir_path)
     
     return subdir_path
@@ -152,8 +152,10 @@ def get_results_folder(study: str,
                        file_type: str
 ) -> str:
     
-    dt_string = get_date_time()    
+    make_dir('..\\results')
     parent_dir = get_path(study, 'results')
+    make_dir(parent_dir)
+    dt_string = get_date_time()
     date_folder = get_subdir(parent_dir, dt_string)
     output_folder = get_subdir(date_folder, folder_name)
     
