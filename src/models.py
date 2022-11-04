@@ -1,10 +1,10 @@
-"""Tracer kinetic modelling
+"""Tracer kinetic modelling.
 
-A module which 
-
+A module which excutes the tracer kinetic modelling upon a study
+of interest using the TristanRat class, outputting fitted data and 
+estimated parameter variables in tabular and graphical formats.
 """
-
-# models.py
+# imports
 import os
 import sys
 import pandas as pd
@@ -39,7 +39,6 @@ def split_groups(files: list,
         compounds ('drug') administered to rats. Within this, there
         are two nested dictionaries, dividing time curves into control
         (baseline, day '1') and treatment (follow-up, day '2') groups.
-
     """
     time_curves = {}
     for n, file in enumerate(files):
@@ -56,7 +55,7 @@ def split_groups(files: list,
     return time_curves
 
 
-def convert_to_deltaR1(df_output: pd.DataFrame,
+def convert_to_deltaR1(combined_signals: pd.DataFrame,
                        time_curve: str,
                        R10: float,
                        FA: int,
@@ -76,7 +75,7 @@ def convert_to_deltaR1(df_output: pd.DataFrame,
     literature-based values for the precontrast relaxation rates R10.
     
     Args:
-        df_output: Dataframe containing observed and fitted 
+        combined_signals: Dataframe containing observed and fitted 
             liver and spleen data for single rat from one 
             acquisition.
         time_curve: Time curve of interest, e.g., 'Liver fit'.
@@ -89,9 +88,8 @@ def convert_to_deltaR1(df_output: pd.DataFrame,
             liver and spleen data for all rats and all acquistions.
         metadata: Metadata corresponding to specific rat and
             acquisition of interest.
-
     """
-    S = df_output[time_curve]
+    S = combined_signals[time_curve]
     S0 = S[:4].mean() # S0 = precontrast signal (measured by averaging precontrast signals S(t))
     
     # Deriving relaxation rates from signals ->
@@ -107,21 +105,42 @@ def convert_to_deltaR1(df_output: pd.DataFrame,
     signals[metadata['drug']][metadata['day']][metadata['subject']][f"Delta R1 {time_curve.replace(' (a.u.)', '')} (s-1)"] = dR1
 
 
-def get_num_subjects(signals: dict
+def get_subject_list(signals: dict
 ) -> list:
-    subject_range = []
+    """Get subject index list per drug and day.
+    
+    Args:
+        signals: Dictionary containing all observed and fitted 
+            liver and spleen data for all rats and all acquistions.
+    
+    Returns:
+        List of index combinations for each drug, day, and subject in
+        study of interest.
+    """
+    subject_list = []
     for drug, day in list(itertools.product(signals.keys(), [1, 2])):
-        subject_range.append([drug, day, list(signals[drug][day].keys())])
+        subject_list.append([drug, day, list(signals[drug][day].keys())])
         
-    return subject_range
+    return subject_list
 
 
-def get_signal_averages(signals: dict,
-                        subject_range: list,
+def get_average_curves(signals: dict,
+                        subject_list: list,
                         time_curve: str
 ) -> None:
-    """to extract signal average over all rats"""
-    for i in subject_range:
+    """Extracts time curve averages per drug and day.
+
+    Calculates time curve averages over all subjects and stores
+    result in new key within the 'signals' dictionary.
+
+    Args:
+        signals: Dictionary containing all observed and fitted 
+            liver and spleen data for all rats and all acquistions.
+        subject_list: List of index combinations for each drug, day, and 
+            subject in study of interest.
+        time_curve: Time curve of interest, e.g., 'Liver fit'.    
+    """
+    for i in subject_list:
         drug = i[0]
         subjectRange = i[2]
         day = i[1]
@@ -144,39 +163,24 @@ def get_signal_averages(signals: dict,
         signals[drug][day]['Average ' + time_curve] = average_signal
 
 
-def split_fits(signals: dict,
-               drug: str,
-               time_curve: str
-) -> pd.DataFrame:
-    
-    df = pd.concat([signals[drug][1][f"Average Delta R1 {time_curve} (s-1)"],
-                   signals[drug][2][f"Average Delta R1 {time_curve} (s-1)"]['Average deltaR1 (s-1)']], 
-                           axis=1)
-    df.columns = ['Time (s)', 'Control', 'Treatment']
-    
-    df.dropna(inplace = True)
-    
-    return df
-
-
 def fit_data(study: str,
             filenames: list,
             files: list,
             signals: Dict[str, Dict[str, Dict[int, pd.DataFrame]]],
             model: str
 ) -> pd.DataFrame:
-    """Fits rat liver data.
+    """Fits liver time_curve data.
     
     Args:
+        study. Study name of interest (e.g., 'SixTestCompounds).
         filenames: List of filenames where MRI signal data are contained.
         files: List of files where MRI signal data are contained.
         signals: Dictionary containing all observed and fitted liver and 
             spleen data for all rats and all acquistions.
         model: Tracer kinetic model used for fitting MRI signal data.
-        study: Study name of interest
         
     Returns:
-        Estimated parameter variables.    
+        DataFrame containing estimated parameter variables.    
     """
     all_vars = None
     for n, file in enumerate(files):
@@ -190,6 +194,7 @@ def fit_data(study: str,
         rat.dt = ts[1] - ts[0]
         rat.dose = 0.0075
 
+        # Assign site-specific criteria (from DICOM headers or relayed by sites)
         if metadata['site'] == 'E':
             rat.tstart = 4.0*60 + 45     
             rat.tduration = 30
@@ -227,27 +232,28 @@ def fit_data(study: str,
         rat.fit_standard()
         
         plots.get_signal_plots(study, filenames[n], 
-                         rat.t, rat.liver_signal, rat.liver_sampling_times, rat.liver_data, metadata)
+                                rat.t, rat.liver_signal, rat.liver_sampling_times,
+                                rat.liver_data, metadata)
 
         fitted_signals_df = pd.DataFrame({"Time fit (s)": rat.t})
         fitted_signals_df["Spleen fit (a.u.)"] = rat.spleen_signal
         fitted_signals_df["Liver fit (a.u.)"] = rat.liver_signal
-        df_output = pd.concat([signal_df, fitted_signals_df], axis=1)
-        signals[metadata['drug']][metadata['day']][metadata['subject']] = df_output
-        col_names = df_output.columns
+        combined_signals = pd.concat([signal_df, fitted_signals_df], axis=1)
+        signals[metadata['drug']][metadata['day']][metadata['subject']] = combined_signals
+        col_names = combined_signals.columns
         liver_curves = [x for x in col_names if 'Liver' in x]
         spleen_curves = [x for x in col_names if 'Spleen' in x]
 
         for curve in liver_curves:
-            convert_to_deltaR1(df_output, curve, R10L, FA, TR, liver_signal_model, signals, metadata)
+            convert_to_deltaR1(combined_signals, curve, R10L, FA, TR, liver_signal_model, signals, metadata)
         for curve in spleen_curves:
-            convert_to_deltaR1(df_output, curve, R10S, FA, TR, spleen_signal_model, signals, metadata)
+            convert_to_deltaR1(combined_signals, curve, R10S, FA, TR, spleen_signal_model, signals, metadata)
 
         save_name = data.get_results_folder(study, '01_model_outputs',
                                        'relaxation_rates_and_signals', None, f"fit_{filenames[n][:-8]}", 'csv')
-        df_output.to_csv(save_name)
+        combined_signals.to_csv(save_name)
 
-        # Save parameter file
+        # Create DataFrame for storing estimated parameters
         vars = rat.export_variables()
         name = pd.DataFrame({"Data file": [file]*vars.shape[0]})
         drug = pd.DataFrame({"Drug": [metadata['drug']]*vars.shape[0]})
