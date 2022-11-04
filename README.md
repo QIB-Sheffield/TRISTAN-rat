@@ -2,7 +2,7 @@
 This archive contains an assortment of scripts used for analysing dynamic 
 gadoxetate-enhanced magnetic resonance imaging (MRI) signal data in rat
 liver as part of the work conducted by 
-[work package 2 (WP2) of the IMI-TRISTAN TRISTAN EU project](https://imi-tristan.eu/en/liver/).
+[work package 2 (WP2) of the IMI-TRISTAN TRISTAN EU project](https://www.imi-tristan.eu/liver).
 
 These scripts accompany the manuscript "Use of physiologically based 
 pharmacokinetic and tracer kinetic models for prospective prediction and 
@@ -21,13 +21,13 @@ this repository. All required Python dependencies are specified within the
 In this project, `conda` virtual environments were used to manage the project 
 dependencies in isolation. Anaconda may be installed within the user's directory 
 without causing conflicts with a system's Python installation, therefore it is 
-recommended to set up a working environment by downloading the the `conda` package 
+recommended to set up a working environment by downloading the `conda` package 
 manager from [Anaconda's Python distribution](https://www.anaconda.com/download/).
 
 ## Project setup and installation
 1. Open a Git Bash in an interface of your choice and navigate to an empty project directory by inputting the following command:
 
-    cd <path_to_project_name>
+        cd <path_to_project_name>
 
 3. Clone the project from GitHub:
 
