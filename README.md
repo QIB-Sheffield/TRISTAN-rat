@@ -33,8 +33,8 @@ manager from [Anaconda's Python distribution](https://www.anaconda.com/download/
 
         git clone https://github.com/<account_name>/<project_name>.git .
 
-        Alternatively, download the whole archive locally as a zip file. 
-        [More details on cloning a repository may be found here:]
+   Alternatively, download the whole archive locally as a zip file. 
+   [More details on cloning a repository may be found here.](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
 
 4. From the project root directory, run the following command to create a separate virtual environment:
 
