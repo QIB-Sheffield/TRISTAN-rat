@@ -1,9 +1,8 @@
-"""Data handling
+"""Data handling.
 
 A module which locates files and filenames, 
 and returns filename descriptions of all project input data
-along with pathnames where results should be stored
-
+along with pathnames where results should be stored.
 """
 # imports
 import os
@@ -25,9 +24,9 @@ def get_date_time(
     """Gets current date.
     
     Module obtains current date and returns it as a string variable. 
-    This variable can then be used later when outputting results into 
-    new folders labelled by date."""
-    
+    This variable can then be used for outputting results into new 
+    folders labelled by date.
+    """
     now = datetime.now() # gets current date
 
     # converts to YYYY-MM-DD format, e.g., 2022-10-31
@@ -47,15 +46,15 @@ def make_dir(path: Path
 def get_path(study: str,
             folder: str,
 ) -> Tuple[str, str]:
-    """Gets data/results folderpath of chosen study.
+    """Gets data/results folder path of chosen study.
     
      Args:
         study: Study name of interest (e.g., 'SixTestCompounds').
         folder: Folder of interest (e.g., 'results').
 
     Returns:
-        Folderpath for data or results folder (as selected by user)
-        related to study of choice in string format.
+        Folder path (in string format) for data or results folder 
+        (as selected by user) related to study of choice.
     """
     cwd = os.getcwd()
     path = f"{cwd}\\{folder}\\{study}\\"
@@ -151,7 +150,21 @@ def get_results_folder(study: str,
                        filename: str,
                        file_type: str
 ) -> str:
+    """Obtains results folder and subfolders.
     
+    Args:
+        study: Study name of interest (e.g., 'SixTestCompounds').
+        folder_name: Results folder of interest (e.g., '02_effect_sizes').
+        subfolder_name: Results subfolder of interest (e.g., 'figures'). If
+            no subfolders are required use None.
+        extra_subfolder_name: Extra results subfolder of interest (e.g., 
+            'per_Rat'). If no extra subfolders are required use None.
+        filename: Chosen file name.
+        file_type: File format, e.g., 'csv'.
+        
+    Returns:
+        Directory path name (in string format) for storing results.
+    """
     make_dir('results')
     parent_dir = get_path(study, 'results')
     make_dir(parent_dir)

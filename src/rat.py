@@ -89,7 +89,7 @@ def propagate_2cxm(t: np.ndarray,
 
     return cp, ce
 
-
+# TRISTAN-rat class
 class TristanRat():
     """The TRISTAN-rat model.
     

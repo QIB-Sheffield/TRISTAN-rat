@@ -1,7 +1,8 @@
-"""Main module
+"""Main script.
 
-A module which 
-
+A script which can be called from the command line to perform
+the tracer kinetic modelling and generate all resulting reports
+and figures for a specific study of interest.
 """
 import os
 import sys
@@ -19,50 +20,62 @@ from rat import TristanRat
 
 def main(study: str
 ) -> None:
-    """Import & prepare data from TK modelling and output statistical summaries
+    """Import & prepare data from TK modelling and output statistical summaries.
 
     Args:
-        study: study of interest (e.g., 'SixTestCompounds')
+        study: Study name of interest (e.g., 'SixTestCompounds')
     """
-
+    # Get files and filenames
     files, filenames = data.get_files(study, '01_signals')
+    # Split control and treatment groups
     signals = models.split_groups(files, filenames)
+    # Fit data and get all estimated parameter variables
     all_parameters = models.fit_data(study, filenames, files, signals, TristanRat)
 
-    subject_range = models.get_num_subjects(signals)
+    # Get time curve averages per drug and per day
+    subject_list = models.get_subject_list(signals)
     for curve in ['Delta R1 Liver (s-1)', 'Delta R1 Liver fit (s-1)', 'Delta R1 Spleen (s-1)']:
-        models.get_signal_averages(signals, subject_range, curve)
+        models.get_average_curves(signals, subject_list, curve)
 
+    # Plot average time curves per drug and per day
     for drug, day in list(itertools.product(signals.keys(), [1, 2])):
+        # For fitted liver data
         plots.get_deltaR1_plots(signals, drug, 'Liver', study, is_fitted=True, YLIM=(0, 5))
+        # For observed liver data only
         plots.get_deltaR1_plots(signals, drug, 'Liver', study, is_fitted=False, YLIM=(0, 5))
+        # For observed spleen data only
         plots.get_deltaR1_plots(signals, drug, 'Spleen', study, is_fitted=False, YLIM=(0, 1))
         
-    # Pivot dataframe
-    site_names = {'Bosentan':'Bosentan_2mg', 'BosentanHigh':'Bosentan_high', 
-    'Cyclosporine':'Ciclosporin'} # create dictionary to differentiate to update site names
-
+    # Create dictionary to rename sites into more comprehensive format
+    site_names = {'Bosentan':'Bosentan_2mg',
+                    'BosentanHigh':'Bosentan_high',
+                    'Cyclosporine':'Ciclosporin'}
     all_parameters.replace({'Drug':site_names}, inplace=True)
 
+    # Create extra column storing combined site and drug labels
     all_parameters['Site_drug'] = all_parameters['Site'] + ' ' + all_parameters['Drug']
 
+    # Quality control
+    # Remove missing data and computational fittign errors from all estimated parameter data
     all_parameters_cleaned = effect_sizes.remove_data_errors(all_parameters, study)
 
+    # Create list of condition variables to group by
     variables = ['Drug','Symbol','Site']
+    # Create list of biomarkers (parameters) of interest
     params = ['Ktrans', 'kbh', 'khe']
 
-    # save effect_sizes
+    # Obtain effect size summaries and save as csv
     effect_sizes.save_effect_sizes(all_parameters_cleaned, params, variables, study)
         
-    # Pairplots    
-    for i in params:
-        plots.pairplots(all_parameters, str(i), study)
+    # Plot biomarker distributions between Day 1 and Day 2 per rat  
+    for biomarker in params:
+        plots.pairplots(all_parameters, str(biomarker), study)
 
 
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='Import & prepare data from TK modelling and output statistical summaries',
         usage='python main.py --study study_name')
-    parser.add_argument('--study', required=True, help='Study name')
+    parser.add_argument('--study', required=True, help='Study name of interest, e.g., SixTestCompounds')
     args = parser.parse_args()
     main(args.study)
