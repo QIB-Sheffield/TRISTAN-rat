@@ -49,22 +49,79 @@ manager from [Anaconda's Python distribution](https://www.anaconda.com/download/
         pip install -r requirements.txt
 
 ## Running the scripts
+### `data` directory
 The MRI signal data acquired in this study are provided in csv format and can 
-be found in the `01_signals` folder contained within the project `data` 
-directory.
+be found in the `data/SixTestCompounds/01_signals` folder.
 
+Each csv file contains the liver and spleen region of interest (ROI) time 
+curve data for a single rat at a specific site and day, after administration of
+the test compound of interest.
+
+The corresponding filename for each file is formatted as a string containing 
+study descriptors (metadata) separated by underscores, i.e.,
+filename = "compound_site_RatNumber_dayNumber_dataType"
+e.g., "Asunaprevir_E_Rat2_2_Signals"
+
+### `src` directory
 All necessary source code for reproducing the results presented in the 
-manuscript are located within the `src` directory of this project.
+manuscript are located within the `src` directory of this project. This
+consists of 4 modules:
 
+data.py
+models.py
+effect_sizes.py
+plots.py
+
+1 class:
+rat.py
+
+and 1 script used to generate all outputs from the modules:
+main.py
+
+### `results` directory
 Results may be found within the `results` directory and are generated from the
-code by running the following command from within the project's root directory:
+code by running the main script using the following command from within the 
+project's root directory:
 
     python src/main.py --study SixTestCompounds
 
-A detailed metadata further describing the contents of each directory may be
-found within respective folders.
+This will create a results folder with the following structure:
+```
+results/
+|
+|---- StudyName (e.g., 'SixTestCompounds')/
+|    |
+|    |---- DateOfAnalysis YYYY-MM-DD (e.g., '2022-11-04')/
+|    |     |
+|    |     |---- 01_model_outputs/
+|    |     |    |---- figures/
+|    |     |    |       |---- per_drug/
+|    |     |    |       |---- per_rat/
+|    |     |    |---- relaxation_rates_and_signals
+|    |     |    |---- all_parameters.csv
+|    |     |---- 02_effect_sizes/
+|    |          |---- figures/
+|    |          |---- effect_sizes.csv
+|    |          |---- fit_errors.txt
+```
 
-An additional Jupyter notebook [TristanRat_examples.ipynb] has been provided for 
+`01_model_ouputs` contains all outputs generated as result of the tracer kinetic
+model fitting. Within this, plotted signal time curves for each acquistion per 
+rat may be found in `figures/per_rat`, while average deltaR1 curves per drug may
+be found in `figures/per_drug`. All estimated parameter variables from the fitting
+are stored in `all_parameters.csv`. The folder `relaxation_rates_and_signals` 
+contains the fitted MRI signal data in a similar format to the original csv data 
+in `data/01_signals`. Additional columns have been included showing the MRI signals 
+converted to R1.
+
+`02_effect_sizes` contains results of the statistical analysis performed on the  
+tracer kinetic modelling output. This is summarised in tabular format in 
+`effect_sizes.csv`, while graphical distributions are provided within the `figures/`
+folder. `fit_errors.txt` contains an ID list for any computational fitting errors
+found during quality control of the tracer kinetic modelling.
+
+### `notebooks` directory
+An additional Jupyter notebook `TristanRat_examples.ipynb` has been provided for 
 interacting with some of the functions and methods of the TristanRat class 
 described in the `src/rat.py`. To try some of these examples, run the command:
 
