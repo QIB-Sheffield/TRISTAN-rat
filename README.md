@@ -7,7 +7,10 @@ liver as part of the work conducted by
 These scripts accompany the manuscript "Use of physiologically based 
 pharmacokinetic and tracer kinetic models for prospective prediction and 
 quantification of hepatic transporters drug-drug interaction via in vivo imaging 
-in rats" (hereafter referred to as the 'Six Test Compounds' study).
+in rats" by Nicola Melillo, Daniel Scotcher, J. Gerry Kenna, Claudia Green, 
+Catherine D. G. Hines, Iina Laitinen, Paul D. Hockings, Kayode Ogungbenro, 
+Ebony R. Gunwhy, Steven Sourbron, John C. Waterton, Gunnar Schuetz, and 
+Aleksandra Galetin (hereafter referred to as the 'Six Test Compounds' study).
 
 This paper has been submitted for publication in the open access journal 
 [Pharmaceutics from MDPI](https://www.mdpi.com/journal/pharmaceutics).
@@ -145,3 +148,9 @@ exploring the different outputs obtained as a result.
 |---------|------------------|----------|
 |[Ebony R. Gunwhy](https://github.com/EbonyGunwhy)  | [@EbonyGunwhy](https://github.com/EbonyGunwhy)     | e.gunwhy@sheffield.ac.uk   |
 |[Steven Sourbron](https://github.com/plaresmedima) | [@plaresmedima](https://github.com/plaresmedima)   | s.sourbron@sheffield.ac.uk |
+
+## Funding
+The research leading to these results received funding from the [Innovative Medicines 
+Initiative](https://www.imi.europa.eu/) 2 Joint Undertaking under grant agreement No 
+116106. This Joint Undertaking receives support from the [European Union’s Horizon 2020](https://research-and-innovation.ec.europa.eu/funding/funding-opportunities/funding-programmes-and-open-calls/horizon-2020_en) research and innovation programme 
+and [EFPIA](https://www.efpia.eu/).
