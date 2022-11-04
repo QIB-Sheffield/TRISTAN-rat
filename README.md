@@ -59,24 +59,27 @@ the test compound of interest.
 
 The corresponding filename for each file is formatted as a string containing 
 study descriptors (metadata) separated by underscores, i.e.,
-filename = "compound_site_RatNumber_dayNumber_dataType"
-e.g., "Asunaprevir_E_Rat2_2_Signals"
+filename = `compound_site_RatNumber_dayNumber_dataType`,
+e.g., `Asunaprevir_E_Rat2_2_Signals`.
 
 ### `src` directory
 All necessary source code for reproducing the results presented in the 
 manuscript are located within the `src` directory of this project. This
 consists of 4 modules:
-
+```
 data.py
 models.py
 effect_sizes.py
 plots.py
-
+```
 1 class:
+```
 rat.py
-
+```
 and 1 script used to generate all outputs from the modules:
+```
 main.py
+```
 
 ### `results` directory
 Results may be found within the `results` directory and are generated from the
@@ -114,7 +117,7 @@ contains the fitted MRI signal data in a similar format to the original csv data
 in `data/01_signals`. Additional columns have been included showing the MRI signals 
 converted to R1.
 
-`02_effect_sizes` contains results of the statistical analysis performed on the  
+`02_effect_sizes` contains results of the statistical analysis performed on the 
 tracer kinetic modelling output. This is summarised in tabular format in 
 `effect_sizes.csv`, while graphical distributions are provided within the `figures/`
 folder. `fit_errors.txt` contains an ID list for any computational fitting errors
