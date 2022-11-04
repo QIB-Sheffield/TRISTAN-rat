@@ -25,7 +25,7 @@ recommended to set up a working environment by downloading the `conda` package
 manager from [Anaconda's Python distribution](https://www.anaconda.com/download/).
 
 ## Project setup and installation
-1. Open a Git Bash in an interface of your choice and navigate to an empty project directory by inputting the following command:
+1. Open Git Bash in an interface of your choice and navigate to an empty project directory by inputting the following command:
 
         cd <path_to_project_name>
 
@@ -33,8 +33,8 @@ manager from [Anaconda's Python distribution](https://www.anaconda.com/download/
 
         git clone https://github.com/<account_name>/<project_name>.git .
 
-Alternatively, download the whole archive locally as a zip file. 
-[More details on cloning a repository may be found here:](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
+        Alternatively, download the whole archive locally as a zip file. 
+        [More details on cloning a repository may be found here:]
 
 4. From the project root directory, run the following command to create a separate virtual environment:
 
@@ -65,10 +65,10 @@ A detailed metadata further describing the contents of each directory may be
 found within respective folders.
 
 An additional Jupyter notebook [TristanRat_examples.ipynb] has been provided for 
-interacting with some of the functions and methoods of the TristanRat class 
+interacting with some of the functions and methods of the TristanRat class 
 described in the `src/rat.py`. To try some of these examples, run the command:
 
-    jupter notebook
+    jupyter notebook
 
 This will start a server and open the Jupyter interface within the operating 
 system's default browser. In the contents, navigate to the notebook in
@@ -83,5 +83,5 @@ exploring the different outputs obtained as a result.
 
 |Name     |  GitHub Handle   | Email    |
 |---------|------------------|----------|
-|[Ebony R. Gunwhy](https://github.com/EbonyGunwhy)  | @EbonyGunwhy    | e.gunwhy@sheffield.ac.uk   |
-|[Steven Sourbron](https://github.com/plaresmedima) | @plaresmedima   | s.sourbron@sheffield.ac.uk |
+|[Ebony R. Gunwhy](https://github.com/EbonyGunwhy)  | [@EbonyGunwhy](https://github.com/EbonyGunwhy)     | e.gunwhy@sheffield.ac.uk   |
+|[Steven Sourbron](https://github.com/plaresmedima) | [@plaresmedima](https://github.com/plaresmedima)   | s.sourbron@sheffield.ac.uk |
