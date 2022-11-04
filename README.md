@@ -31,22 +31,22 @@ manager from [Anaconda's Python distribution](https://www.anaconda.com/download/
 
 3. Clone the project from GitHub:
 
-    git clone https://github.com/<account_name>/<project_name>.git .
+        git clone https://github.com/<account_name>/<project_name>.git .
 
 Alternatively, download the whole archive locally as a zip file. 
 [More details on cloning a repository may be found here:](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
 
 4. From the project root directory, run the following command to create a separate virtual environment:
 
-    conda create --name <project_name> python=3.7
+        conda create --name <project_name> python=3.7
 
 5. Activate the virtual environment:
     
-    conda activate <project_name>
+        conda activate <project_name>
 
 6. Install required packages:
 
-    pip install -r requirements.txt
+        pip install -r requirements.txt
 
 ## Running the scripts
 The MRI signal data acquired in this study are provided in csv format and can 
