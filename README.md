@@ -106,10 +106,17 @@ results/
 |    |     |    |---- relaxation_rates_and_signals
 |    |     |    |---- all_parameters.csv
 |    |     |---- 02_effect_sizes/
-|    |          |---- figures/
-|    |          |---- effect_sizes.csv
-|    |          |---- fit_errors.txt
+|    |     |    |---- figures/
+|    |     |    |---- effect_sizes.csv
+|    |     |    |---- fit_errors.txt
 ```
+As the tracer kinetic model used in this study produces estimated parameter
+variables, modelling outputs may vary slightly between different iterations.
+Therefore, upon each execution of the code, a top-level directory named after 
+the date the analysis was conducted is created for storing the results from
+that particular execution. For reference, the results and figures shown in this 
+manuscript were created using the outputs contained in 
+`results/SixTestCompounds/2022-09-01`.
 
 `01_model_ouputs` contains all outputs generated as result of the tracer kinetic
 model fitting. Within this, plotted signal time curves for each acquistion per 
