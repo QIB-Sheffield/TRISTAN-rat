@@ -33,8 +33,8 @@ def remove_data_errors(parameter_data: pd.DataFrame,
                    index=['Drug', 'Site', 'Site_drug', 'Rat', 'Day'])
     
     # Remove computational fitting errors based on subjects where gadoxetate
-    # extraction fraction, E is close or equal to 100% (i.e., >= 95%)
-    fit_errors = data_pivoted[data_pivoted['E']>=95]
+    # extraction fraction, E is close or equal to 100% (i.e., >= 99%)
+    fit_errors = data_pivoted[data_pivoted['E']>=99.95]
     fit_errors_removed = data_pivoted[~data_pivoted.index.isin(fit_errors.index)]
 
     # Save index metadata for computational fitting errors
@@ -76,11 +76,12 @@ def get_stats(cleaned_parameter_data: pd.DataFrame,
     rats['diff'] = rats[1] - rats[2]
     
     rats_avg = rats.groupby(level=variables)[[1, 2, 'pct_change']].agg(['mean', 'sem'])
-    rats_avg['simple_effect_size'] = rats.groupby(level=variables)['diff'].mean()
-    rats_avg['simple_effect_size_CI95'] = rats.groupby(level=variables)['diff'].sem().mul(1.96)
+    rats_avg['simple_effect_size'] = rats.groupby(level=variables)[1].mean() - rats.groupby(level=variables)[2].mean()
+    rats_avg['lowerCI95'] = rats_avg['simple_effect_size'] - rats.groupby(level=variables)['diff'].sem().mul(1.96)
+    rats_avg['upperCI95'] = rats_avg['simple_effect_size'] + rats.groupby(level=variables)['diff'].sem().mul(1.96)
     rats.dropna(inplace=True)
     rats_avg['p-value'] = rats.groupby(level=variables).apply(lambda df: stats.ttest_rel(df[1], df[2])[1])
-    
+
     rats_avg.sort_index(axis=1, inplace=True)
             
     return rats, rats_avg
@@ -113,7 +114,7 @@ def save_effect_sizes(cleaned_parameter_data: pd.DataFrame,
 
     ## Get tables
     _, per_drug = get_stats(data_pivoted.query('Symbol in @params'), variables)
-    effect_sizes = per_drug[['simple_effect_size', 'simple_effect_size_CI95', 'p-value']].swaplevel(axis=1)
+    effect_sizes = per_drug[['simple_effect_size', 'lowerCI95', 'upperCI95', 'p-value']].swaplevel(axis=1)
     effect_sizes.reset_index(inplace=True)
     effect_sizes.sort_index(axis=1, inplace=True)
     effect_sizes_pivoted = effect_sizes.pivot_table(columns=['Symbol'], index='Drug').swaplevel(axis=1)
