@@ -199,7 +199,7 @@ def fit_data(study: str,
             rat.tstart = 4.0*60 + 45     
             rat.tduration = 30
             rat.field_strength = 7.0                              
-            rat.FA = 30
+            rat.FA = 20
             rat.TR = 5.8/1000
         elif metadata['site'] == 'G2': 
             rat.tstart = 4.0*60 + 45         
