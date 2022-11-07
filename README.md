@@ -27,6 +27,13 @@ without causing conflicts with a system's Python installation, therefore it is
 recommended to set up a working environment by downloading the `conda` package 
 manager from [Anaconda's Python distribution](https://www.anaconda.com/download/).
 
+---
+**NOTE**
+The following steps assume that Anaconda has already been installed and that 
+commands are run from a Windows OS. If replicating from a different OS, please 
+adapt commands to the appropriate related invocation [(Some examples here)](https://kinsta.com/blog/python-commands/).
+---
+
 ## Project setup and installation
 1. Open Git Bash in an interface of your choice and navigate to an empty project directory by inputting the following command:
 
@@ -136,12 +143,12 @@ found during quality control of the tracer kinetic modelling.
 ### `notebooks` directory
 An additional Jupyter notebook `TristanRat_examples.ipynb` has been provided for 
 interacting with some of the functions and methods of the TristanRat class 
-described in the `src/rat.py`. To try some of these examples, run the command:
+described in the `src/rat.py` script. To try some of these examples, run the command:
 
     jupyter notebook
 
 This will start a server and open the Jupyter interface within the operating 
-system's default browser. In the contents, navigate to the notebook in
+system's default browser. In the contents, navigate to the notebook 
 `notebooks/TristanRat_examples.ipynb` and select to open. 
 
 Each example in the notebook is provided in a separate cell. Pressing 
