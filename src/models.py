@@ -142,7 +142,7 @@ def get_average_curves(signals: dict,
         day = i[1]
         signal = 0
         num_subjects = len(subjectRange)
-        for subject in range(subjectRange[0], num_subjects):
+        for subject in range(subjectRange[0], subjectRange[-1] + 1):
             signal = signal + signals[drug][day][subject][time_curve]
             time_observed = signals[drug][day][subject]['Time (s)']
             time_fit = signals[drug][day][subject]['Time fit (s)']
