@@ -43,8 +43,7 @@ def extract_curves(signals: dict,
 
 # Define default settings for plots
 sns.set_theme(style="white", color_codes=True)
-sns.set(font_scale=3)
-sns.set_style('whitegrid')
+sns.set(style = "whitegrid", font_scale=2, rc={"savefig.dpi":300})
 
 
 def get_signal_plots(study: str,
@@ -75,11 +74,13 @@ def get_signal_plots(study: str,
     # Create the plot
     plt.plot(time_series, fitted_signal, color='green', label='Simulated Liver Signal')
     plt.plot(sample_times, observed_signal, marker="x", color='green', linewidth=0, label='Observed Liver Signal')
-    plt.xlabel("Time (sec)")
-    plt.ylabel('Signal (a.u.)')
+    plt.xlabel("Time [sec]")
+    plt.ylabel('Signal [a.u.]')
     plt.ylim(bottom=0, top=16)
     plt.title(metadata['drug'] + ' (Rat ' + str(metadata['subject']) + ', Day ' + str(metadata['day']) + ')')
     plt.legend(loc='best')
+    plt.tight_layout()
+
     save_name = data.get_results_folder(study, '01_model_outputs', 'figures', 'per_rat', f"fig_{filename}", 'png')
     plt.savefig(save_name)
     plt.close()
@@ -109,40 +110,43 @@ def get_deltaR1_plots(signals: dict,
         YLIM: Tuple containing upper and lower y-axis limits for the plot.
     """
     observed = extract_curves(signals, drug, ROI)
-    
-    plt.figure(figsize=(12,8))
+
+    plt.rcParams['savefig.dpi'] = 300
+    plt.figure(figsize=(13, 10))
     plt.errorbar(data=observed,
                     x="Time (s)", y='Control',
                     yerr=observed['Control'].std(),
-                    color='royalblue',
-                    fmt="o", elinewidth=1, capthick=0.01, capsize=0.01, alpha=0.95,
+                    color='#00008B',
+                    fmt="o", elinewidth=2, capthick=1, capsize=1, alpha=1,
                     label = "Control - observed")
 
     plt.errorbar(data=observed,
                     x="Time (s)", y='Treatment',
-                    yerr=observed['Treatment'].std(), color='darkorange',
-                    fmt="x", elinewidth=1, capthick=0.01, capsize=0.01, alpha=0.95,
+                    yerr=observed['Treatment'].std(), color='#8B2323',
+                    fmt="x", elinewidth=2, capthick=1, capsize=1, alpha=1,
                     label = "Treatment - observed")
         
     if is_fitted==True:
         fitted = extract_curves(signals, drug, f"{ROI} fit")
         g = sns.lineplot(data=fitted, x="Time (s)", y='Control',
-                            ls='-', label = "Control - fitted")
+                            ls='-', linewidth = 3, label = "Control - fitted")
 
         g = sns.lineplot(data=fitted, x="Time (s)", y='Treatment',
-                            ls='-', label = "Treatment - fitted")
+                            ls='-', linewidth = 3, label = "Treatment - fitted")
                             
         fig_name = f"{drug}_{ROI}_deltaR1_fitted"
     else:
         g = sns.lineplot(data=observed, x="Time (s)", y='Control', ls='',)
         fig_name = f"{drug}_{ROI}_deltaR1"
 
-    g.set_title(f"{drug} group mean {ROI} gadoxetate profiles in control and inhibitory phases \n (error bars represent standard deviation)")
-    g.set_xlabel("Time (s)", weight='bold')
-    g.set_ylabel("\u0394 $R_{1}$ ($s^{-1}$)", weight='bold')
+    plt.suptitle(f"Group mean {ROI} gadoxetate profiles in control and inhibitory phases \n (error bars represent standard deviation)")
+    g.set_title(f"{drug}", weight='bold')
+    g.set_xlabel("Time [sec]", weight='bold')
+    g.set_ylabel("\u0394 $R_{1}$ [$s^{-1}$]", weight='bold')
 
     g.set(ylim=YLIM)
     g.legend(loc='best')
+    plt.tight_layout()
     
     save_name = data.get_results_folder(study, '01_model_outputs', 'figures', 'per_drug', fig_name, 'png')
     plt.savefig(save_name)
@@ -165,6 +169,8 @@ def pairplots(effect_size_data: pd.DataFrame,
         biomarker: MRI biomarker of interest (e.g., 'Ktrans').
         study: Study name of interest (e.g., 'SixTestCompounds').
     """
+    plt.rcParams['savefig.dpi'] = 300
+
     g = sns.catplot(data=effect_size_data[effect_size_data['Symbol']==biomarker],
                         x='Day', y='Value', sharey=True, 
                         hue='Rat', col='Drug', col_wrap=4,
