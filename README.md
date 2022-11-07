@@ -27,12 +27,10 @@ without causing conflicts with a system's Python installation, therefore it is
 recommended to set up a working environment by downloading the `conda` package 
 manager from [Anaconda's Python distribution](https://www.anaconda.com/download/).
 
----
-**NOTE**
+**Note**
 The following steps assume that Anaconda has already been installed and that 
 commands are run from a Windows OS. If replicating from a different OS, please 
 adapt commands to the appropriate related invocation [(Some examples here)](https://kinsta.com/blog/python-commands/).
----
 
 ## Project setup and installation
 1. Open Git Bash in an interface of your choice and navigate to an empty project directory by inputting the following command:
