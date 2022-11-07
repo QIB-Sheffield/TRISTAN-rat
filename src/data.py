@@ -1,6 +1,6 @@
 """Data handling.
 
-A module which locates files and filenames, 
+A module which locates files and filenames,
 and returns filename descriptions of all project input data
 along with pathnames where results should be stored.
 """
@@ -12,9 +12,9 @@ import glob
 from pathlib import Path
 from datetime import datetime
 if sys.version_info >= (3, 8):
-    from typing import Dict, TypedDict, List, Tuple
+    from typing import TypedDict, Tuple
 else:
-    from typing import Dict, List, Tuple
+    from typing import Tuple
     from typing_extensions import TypedDict
 
 
@@ -22,21 +22,21 @@ else:
 def get_date_time(
 ) -> str:
     """Gets current date.
-    
-    Module obtains current date and returns it as a string variable. 
-    This variable can then be used for outputting results into new 
+
+    Module obtains current date and returns it as a string variable.
+    This variable can then be used for outputting results into new
     folders labelled by date.
     """
-    now = datetime.now() # gets current date
+    now = datetime.now()  # gets current date
 
     # converts to YYYY-MM-DD format, e.g., 2022-10-31
-    dt_string = now.strftime(f"%Y-%m-%d")
-    
+    dt_string = now.strftime("%Y-%m-%d")
+
     return dt_string
 
 
 def make_dir(path: Path
-) -> None:
+             ) -> None:
     """Creates directory if it does not exist."""
     if not os.path.exists(path):
         os.mkdir(path)
@@ -44,30 +44,30 @@ def make_dir(path: Path
 
 # Folder paths
 def get_path(study: str,
-            folder: str,
-) -> Tuple[str, str]:
+             folder: str
+             ) -> Tuple[str, str]:
     """Gets data/results folder path of chosen study.
-    
+
      Args:
         study: Study name of interest (e.g., 'SixTestCompounds').
         folder: Folder of interest (e.g., 'results').
 
     Returns:
-        Folder path (in string format) for data or results folder 
+        Folder path (in string format) for data or results folder
         (as selected by user) related to study of choice.
     """
     cwd = os.getcwd()
     path = f"{cwd}\\{folder}\\{study}\\"
-    
+
     return path
 
 
 # Data filenames & filepaths
 def get_files(study: str,
-                dataset: str
-) -> Tuple[list, list]:
+              dataset: str
+              ) -> Tuple[list, list]:
     """Gets list of filepaths and filenames.
-    
+
     Searches dataset folder within chosen study and returns
     list of filepaths and filenames contained within.
 
@@ -85,20 +85,20 @@ def get_files(study: str,
 
 # File metadata
 def get_metadata(filename: str,
-                files: Path
-) -> TypedDict('metadata', {'drug': str, 
-                            'site': str,
-                            'subject': int,
-                            'day': int,
-                            'signals': pd.DataFrame
-                            }
-                ):
+                 files: Path
+                 ) -> TypedDict('metadata', {'drug': str,
+                                             'site': str,
+                                             'subject': int,
+                                             'day': int,
+                                             'signals': pd.DataFrame
+                                             }
+                                ):
     """Extracts study descriptions from filenames.
-    
+
     This function allows the user to extract metadata from
     a filename along with the corresponding dataframe contained
-    within the file. Works only when filename is formatted as 
-    a string containing study descriptors (metadata) separated 
+    within the file. Works only when filename is formatted as
+    a string containing study descriptors (metadata) separated
     by underscores, i.e.,
     filename = "compound_site_RatNumber_dayNumber_dataType"
     e.g., "Asunaprevir_E_Rat2_2_Signals"
@@ -124,8 +124,8 @@ def get_metadata(filename: str,
 
 # Subdirectory paths
 def get_subdir(parentdir: str,
-                subdir_name: str
-) -> str:
+               subdir_name: str
+               ) -> str:
     """Gets subdirectory path.
 
     Args:
@@ -134,11 +134,11 @@ def get_subdir(parentdir: str,
         subdir_name: Name of subdirectory.
 
     Returns:
-        Subdirectory path name in string format.    
+        Subdirectory path name in string format.
     """
     subdir_path = f"{parentdir}{subdir_name}\\"
     make_dir(subdir_path)
-    
+
     return subdir_path
 
 
@@ -149,19 +149,19 @@ def get_results_folder(study: str,
                        extra_subfolder_name: str,
                        filename: str,
                        file_type: str
-) -> str:
+                       ) -> str:
     """Obtains results folder and subfolders.
-    
+
     Args:
         study: Study name of interest (e.g., 'SixTestCompounds').
         folder_name: Results folder of interest (e.g., '02_effect_sizes').
         subfolder_name: Results subfolder of interest (e.g., 'figures'). If
             no subfolders are required use None.
-        extra_subfolder_name: Extra results subfolder of interest (e.g., 
+        extra_subfolder_name: Extra results subfolder of interest (e.g.,
             'per_Rat'). If no extra subfolders are required use None.
         filename: Chosen file name.
         file_type: File format, e.g., 'csv'.
-        
+
     Returns:
         Directory path name (in string format) for storing results.
     """
@@ -171,19 +171,19 @@ def get_results_folder(study: str,
     dt_string = get_date_time()
     date_folder = get_subdir(parent_dir, dt_string)
     output_folder = get_subdir(date_folder, folder_name)
-    
-    if (subfolder_name==None) & (extra_subfolder_name==None):
+
+    if (subfolder_name is None) & (extra_subfolder_name is None):
         filepath = f"{output_folder}\\{filename}"
-        
-    elif (subfolder_name!=None) & (extra_subfolder_name==None):
+
+    elif (subfolder_name is not None) & (extra_subfolder_name is None):
         subfolder = get_subdir(output_folder, subfolder_name)
         filepath = f"{subfolder}\\{filename}"
-        
-    elif (subfolder_name!=None) & (extra_subfolder_name!=None):
+
+    elif (subfolder_name is not None) & (extra_subfolder_name is not None):
         subfolder = get_subdir(output_folder, subfolder_name)
         extra_subfolder = get_subdir(subfolder, extra_subfolder_name)
         filepath = f"{extra_subfolder}\\{filename}"
-        
+
     save_name = f"{filepath}.{file_type}"
-    
+
     return save_name
