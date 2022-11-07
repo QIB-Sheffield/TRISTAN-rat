@@ -232,6 +232,7 @@ def fit_data(study: str,
         rat.set_spleen_data(ts, signal_df["Spleen (a.u.)"].values)
         rat.fit_standard()
 
+        print("Getting signal plots per rat")
         plots.get_signal_plots(study, filenames[n],
                                rat.t, rat.liver_signal,
                                rat.liver_sampling_times,
@@ -247,19 +248,21 @@ def fit_data(study: str,
         liver_curves = [x for x in col_names if 'Liver' in x]
         spleen_curves = [x for x in col_names if 'Spleen' in x]
 
+        print("Converting signals to delta R1s")
         for curve in liver_curves:
             convert_to_deltaR1(combined_signals, curve, R10L, FA, TR,
                                liver_signal_model, signals, metadata)
         for curve in spleen_curves:
             convert_to_deltaR1(combined_signals, curve, R10S, FA, TR,
                                spleen_signal_model, signals, metadata)
-
+        
         save_name = data.get_results_folder(study,
                                             '01_model_outputs',
                                             'relaxation_rates_and_signals',
                                             None,
                                             f"fit_{filenames[n][:-8]}",
                                             'csv')
+        print("Saving fits")
         combined_signals.to_csv(save_name)
 
         # Create DataFrame for storing estimated parameters
@@ -283,6 +286,7 @@ def fit_data(study: str,
                                         None,
                                         'all_parameters',
                                         'csv')
+    print("Saving estimated parameter variables")
     all_vars.to_csv(save_name)
 
     return all_vars

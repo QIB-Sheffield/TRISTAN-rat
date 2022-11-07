@@ -46,13 +46,16 @@ def main(study: str
 
     # Plot average delta R1 time curves per drug and per day
     for drug, day in list(itertools.product(fits.keys(), [1, 2])):
+        print(f"{drug}, Liver fit: Saving average deltaR1 plot")
         # For fitted liver data
         plots.get_deltaR1_plots(fits, drug, 'Liver', study,
                                 is_fitted=True, YLIM=(-1.5, 4.5))
         # For observed liver data only
+        print(f"{drug}, Liver: Saving average deltaR1 plot")
         plots.get_deltaR1_plots(fits, drug, 'Liver', study,
                                 is_fitted=False, YLIM=(-1.5, 4.5))
         # For observed spleen data only
+        print(f"{drug}, Spleen: Saving average deltaR1 plot")
         plots.get_deltaR1_plots(fits, drug, 'Spleen', study,
                                 is_fitted=False, YLIM=(-0.25, 1))
 
@@ -69,6 +72,7 @@ def main(study: str
     # Quality control
     # Remove missing data
     # and computational fitting errors from all estimated parameter data
+    print("Removing computational fitting errors and missing data")
     all_parameters_cleaned = effect_sizes.remove_data_errors(all_parameters,
                                                              study)
 
@@ -78,12 +82,16 @@ def main(study: str
     params = ['Ktrans', 'kbh', 'khe']
 
     # Obtain effect size summaries and save as csv
+    print("Calculating average effect sizes")
     effect_sizes.save_effect_sizes(all_parameters_cleaned, params,
                                    variables, study)
 
     # Plot biomarker distributions between Day 1 and Day 2 per rat
     for biomarker in params:
+        print(f"{biomarker}: Plotting individual biomarker distributions between Day 1 and Day 2")
         plots.pairplots(all_parameters, str(biomarker), study)
+
+    print("Done!")
 
 
 if __name__ == '__main__':
