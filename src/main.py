@@ -48,10 +48,10 @@ def main(study: str
     for drug, day in list(itertools.product(fits.keys(), [1, 2])):
         # For fitted liver data
         plots.get_deltaR1_plots(fits, drug, 'Liver', study,
-                                is_fitted=True, YLIM=(-1, 4))
+                                is_fitted=True, YLIM=(-1.5, 4.5))
         # For observed liver data only
         plots.get_deltaR1_plots(fits, drug, 'Liver', study,
-                                is_fitted=False, YLIM=(-1, 4))
+                                is_fitted=False, YLIM=(-1.5, 4.5))
         # For observed spleen data only
         plots.get_deltaR1_plots(fits, drug, 'Spleen', study,
                                 is_fitted=False, YLIM=(-0.25, 1))
