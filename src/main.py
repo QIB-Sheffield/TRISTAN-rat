@@ -37,14 +37,24 @@ def main(study: str
     for curve in ['Delta R1 Liver (s-1)', 'Delta R1 Liver fit (s-1)', 'Delta R1 Spleen (s-1)']:
         models.get_average_curves(signals, subject_list, curve)
 
-    # Plot average time curves per drug and per day
-    for drug, day in list(itertools.product(signals.keys(), [1, 2])):
+    # Update dictionary keys for average delta R1 plots
+    fits = signals
+    fits['G2 Ciclosporin'] = fits.pop('Cyclosporine')
+    fits['G2 Rifampicin'] = fits.pop('Rifampicin')
+    fits['D Ketoconazole'] = fits.pop('Ketoconazole')
+    fits['E Asunaprevir'] = fits.pop('Asunaprevir')
+    fits['E Pioglitazone'] = fits.pop('Pioglitazone')
+    fits['G1 Bosentan_2mg'] = fits.pop('Bosentan')
+    fits['G1 Bosentan_high'] = fits.pop('BosentanHigh')
+
+    # Plot average delta R1 time curves per drug and per day
+    for drug, day in list(itertools.product(fits.keys(), [1, 2])):
         # For fitted liver data
-        plots.get_deltaR1_plots(signals, drug, 'Liver', study, is_fitted=True, YLIM=(0, 5))
+        plots.get_deltaR1_plots(fits, drug, 'Liver', study, is_fitted=True, YLIM=(-1, 4))
         # For observed liver data only
-        plots.get_deltaR1_plots(signals, drug, 'Liver', study, is_fitted=False, YLIM=(0, 5))
+        plots.get_deltaR1_plots(fits, drug, 'Liver', study, is_fitted=False, YLIM=(-1, 4))
         # For observed spleen data only
-        plots.get_deltaR1_plots(signals, drug, 'Spleen', study, is_fitted=False, YLIM=(0, 1))
+        plots.get_deltaR1_plots(fits, drug, 'Spleen', study, is_fitted=False, YLIM=(-0.25, 1))
         
     # Create dictionary to rename sites into more comprehensive format
     site_names = {'Bosentan':'Bosentan_2mg',
