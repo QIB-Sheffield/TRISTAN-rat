@@ -1,0 +1,28 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: TRISTAN-RAT
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Ebony
+    name-particle: R.
+    family-names: Gunwhy
+    email: e.gunwhy@sheffield.ac.uk
+    affiliation: >-
+      Department of Infection, Immunity and
+      Cardiovascular Disease, University of
+      Sheffield, UK
+    orcid: 'https://orcid.org/0000-0002-5608-9812'
+  - given-names: Steven
+    family-names: Sourbron
+    email: s.sourbron@sheffield.ac.uk
+    affiliation: >-
+      Department of Infection, Immunity and      
+      Cardiovascular Disease, University of      
+      Sheffield, UK
+repository-code: 'https://github.com/QIB-Sheffield/TRISTAN-RAT'
+license: Apache-2.0
