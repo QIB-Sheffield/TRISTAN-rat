@@ -114,42 +114,66 @@ def get_deltaR1_plots(signals: dict,
         YLIM: Tuple containing upper and lower y-axis limits for the plot.
     """
     observed = extract_curves(signals, drug, ROI)
+    observed['Time (min)'] = observed['Time (s)']/60
 
+    plt.rcParams["axes.labelsize"] = 50
+    plt.rcParams["axes.titlesize"] = 50
+    plt.rcParams["axes.labelweight"] = 'bold'
+    plt.rcParams["axes.titleweight"] = 'bold'
+    plt.rcParams["font.weight"] = 'bold'
     plt.rcParams['savefig.dpi'] = 300
-    plt.figure(figsize=(13, 10))
+    plt.rc('axes', linewidth=2)
+    plt.rc('xtick', labelsize=40) 
+    plt.rc('ytick', labelsize=40) 
+
+    plt.figure(figsize=(12, 10))
+    # use set_position
+    ax = plt.gca()
+    #ax.spines['top'].set_color('none')
+    ax.spines['left'].set_color('k')
+    #ax.spines['right'].set_color('none')
+    #ax.spines['bottom'].set_position('zero')
+
+    ax.axhline(y=0, lw=3, color='k')
+    
     plt.errorbar(data=observed,
-                 x="Time (s)", y='Control',
+                 x="Time (min)", y='Control',
                  yerr=observed['Control'].std(),
                  color='#00008B',
-                 fmt="o", elinewidth=2, capthick=1, capsize=1, alpha=1,
+                 fmt="o", elinewidth=2, capthick=3, capsize=6,
+                 markersize=12, markeredgewidth=2, alpha=0.95,
                  label="Control - observed")
 
     plt.errorbar(data=observed,
-                 x="Time (s)", y='Treatment',
+                 x="Time (min)", y='Treatment',
                  yerr=observed['Treatment'].std(), color='#8B2323',
-                 fmt="x", elinewidth=2, capthick=1, capsize=1, alpha=1,
+                 fmt="v", elinewidth=2, capthick=3, capsize=6,
+                 markersize=12, markeredgewidth=2, alpha=0.95,
                  label="Treatment - observed")
 
     if is_fitted is True:
         fitted = extract_curves(signals, drug, f"{ROI} fit")
-        g = sns.lineplot(data=fitted, x="Time (s)", y='Control',
-                         ls='-', linewidth=3, label="Control - fitted")
+        fitted['Time (min)'] = fitted['Time (s)']/60
+        g = sns.lineplot(data=fitted, x="Time (min)", y='Control',
+                         ls='-', linewidth=4, label="Control - fitted")
 
-        g = sns.lineplot(data=fitted, x="Time (s)", y='Treatment',
-                         ls='-', linewidth=3, label="Treatment - fitted")
+        g = sns.lineplot(data=fitted, x="Time (min)", y='Treatment',
+                         ls='-', linewidth=4, label="Treatment - fitted")
 
         fig_name = f"{drug}_{ROI}_deltaR1_fitted"
     else:
-        g = sns.lineplot(data=observed, x="Time (s)", y='Control', ls='',)
+        g = sns.lineplot(data=observed, x="Time (min)", y='Control', ls='',)
         fig_name = f"{drug}_{ROI}_deltaR1"
 
     plt.suptitle(f"Group mean {ROI} gadoxetate profiles in control and inhibitory phases \n (error bars represent standard deviation)")
     g.set_title(f"{drug}", weight='bold')
-    g.set_xlabel("Time [sec]", weight='bold')
+    g.set_xlabel("Time [min]", weight='bold')
     g.set_ylabel("\u0394 $R_{1}$ [$s^{-1}$]", weight='bold')
 
     g.set(ylim=YLIM)
-    g.legend(loc='best')
+    g.set(xlim=(0,30))
+    g.get_legend().remove()
+    #g.legend(loc='best', framealpha=1)
     plt.tight_layout()
 
     save_name = data.get_results_folder(study,
@@ -179,7 +203,22 @@ def pairplots(effect_size_data: pd.DataFrame,
         study: Study name of interest (e.g., 'SixTestCompounds').
     """
     plt.rcParams['savefig.dpi'] = 300
+    plt.rcParams["axes.labelsize"] = 50
+    plt.rcParams["axes.titlesize"] = 50
+    plt.rcParams["axes.labelweight"] = 'bold'
+    plt.rcParams["axes.titleweight"] = 'bold'
+    plt.rcParams["font.weight"] = 'bold'
+    plt.rc('axes', linewidth=2)
+    plt.rc('xtick', labelsize=40) 
+    plt.rc('ytick', labelsize=40) 
+    plt.rcParams["lines.linewidth"] = 4
+    plt.rcParams['lines.markersize'] = 12
 
+    # use set_position
+    ax = plt.gca()
+    ax.spines['left'].set_color('k')
+    ax.spines['bottom'].set_color('k')
+    
     g = sns.catplot(data=effect_size_data[effect_size_data['Symbol'] == biomarker],
                     x='Day', y='Value', sharey=True,
                     hue='Rat', col='Drug', col_wrap=4,
@@ -193,13 +232,13 @@ def pairplots(effect_size_data: pd.DataFrame,
      .despine(left=False))
 
     if biomarker == 'Ktrans':
-        (g.set_axis_labels("", "$K_{trans}$ (mL/min/mL)", weight='bold')
+        (g.set_axis_labels("", "$K^{trans}$ [mL/min/mL]", weight='bold')
          .set(ylim=(0, 1.4)))
     elif biomarker == 'kbh':
-        (g.set_axis_labels("", "$k_{bh}$ (mL/min/mL)", weight='bold')
+        (g.set_axis_labels("", "$k_{bh}$ [mL/min/mL]", weight='bold')
          .set(ylim=(0, 0.35)))
     elif biomarker == 'khe':
-        (g.set_axis_labels("", "$k_{he}$ (mL/min/mL)", weight='bold')
+        (g.set_axis_labels("", "$k_{he}$ [mL/min/mL]", weight='bold')
          .set(ylim=(0, 15)))
 
     for ax in g.axes.flatten():

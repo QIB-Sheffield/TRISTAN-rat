@@ -232,7 +232,7 @@ def fit_data(study: str,
         rat.set_spleen_data(ts, signal_df["Spleen (a.u.)"].values)
         rat.fit_standard()
 
-        print("Getting signal plots per rat")
+        print("Saving fitted signal plot")
         plots.get_signal_plots(study, filenames[n],
                                rat.t, rat.liver_signal,
                                rat.liver_sampling_times,
