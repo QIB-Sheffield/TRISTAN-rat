@@ -67,8 +67,10 @@ manager from [Anaconda's Python distribution](https://www.anaconda.com/download/
 
 ### `data` directory
 
-The MRI signal data acquired in this study are provided in csv format and can 
-be found in the `data/SixTestCompounds/01_signals` folder.
+Please download the data.zip folder from https://zenodo.org/record/7506968#.Y7cNCdXP1PY
+(DOI: 10.5281/zenodo.7506968) and extract its contents. The MRI signal data
+acquired in this study are provided in csv format and can be found in the
+`data/SixTestCompounds/01_signals` folder.
 
 Each csv file contains the liver and spleen region of interest (ROI) time 
 curve data for a single rat at a specific site and day, after administration of
@@ -103,9 +105,10 @@ main.py
 
 ### `results` directory
 
-Results may be found within the `results` directory and are generated from the
-code by running the main script using the following command from within the 
-project's root directory:
+Please download the results.zip folder from https://zenodo.org/record/7506968#.Y7cNCdXP1PY
+(DOI: 10.5281/zenodo.7506968) and extract its contents. Results may be found
+within the `results` directory and are generated from the code by running the
+main script using the following command from within the project's root directory:
 
     python src/main.py --study SixTestCompounds
 
