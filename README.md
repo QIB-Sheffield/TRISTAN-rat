@@ -130,6 +130,10 @@ tracer kinetic modelling output. This is summarised in tabular format in
 folder. `fit_errors.txt` contains an ID list for any computational fitting errors
 found during quality control of the tracer kinetic modelling.
 
+### `Reproducibility` study
+
+*Coming soon...*
+
 ## Interacting with the scripts
 
 The script `rat.py` contains the TRISTAN-rat model used for dynamic
