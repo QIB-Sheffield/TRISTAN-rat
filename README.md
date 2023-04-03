@@ -5,16 +5,10 @@ gadoxetate-enhanced magnetic resonance imaging (MRI) signal data in rat
 liver as part of the work conducted by 
 [work package 2 (WP2) of the IMI-TRISTAN TRISTAN EU project](https://www.imi-tristan.eu/liver).
 
-These scripts accompany the manuscript "Use of physiologically based 
-pharmacokinetic and tracer kinetic models for prospective prediction and 
-quantification of hepatic transporters drug-drug interaction via in vivo imaging 
-in rats" by Nicola Melillo, Daniel Scotcher, J. Gerry Kenna, Claudia Green, 
-Catherine D. G. Hines, Iina Laitinen, Paul D. Hockings, Kayode Ogungbenro, 
-Ebony R. Gunwhy, Steven Sourbron, John C. Waterton, Gunnar Schuetz, and 
-Aleksandra Galetin (hereafter referred to as the 'Six Test Compounds' study).
+These scripts accompany the following studies:
 
-This paper has been submitted for publication in the open access journal 
-[Pharmaceutics from MDPI](https://www.mdpi.com/journal/pharmaceutics).
+* `Six Test Compounds` study (1)
+* `Reproducibility` study (manuscript in preparation)
 
 
 # Getting started
@@ -39,78 +33,59 @@ manager from [Anaconda's Python distribution](https://www.anaconda.com/download/
 
 ## Project setup and installation
 
-1. Open Git Bash in an interface of your choice and navigate to an empty project directory by inputting the following command:
+1. Open Command Prompt in an interface of your choice, create an empty project
+directory and navigate into it by inputting the following commands:
 
-        cd <path_to_project_name>
+        mkdir TRISTAN-rat
+        cd TRISTAN-rat
 
-3. Clone the project from GitHub:
+3. Clone the TRISTAN-rat repository from GitHub into the newly created
+directory:
 
-        git clone https://github.com/<account_name>/<project_name>.git .
+        git clone https://github.com/QIB-Sheffield/TRISTAN-rat .
 
    Alternatively, download the whole archive locally as a zip file. 
    [More details on cloning a repository may be found here.](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
 
 4. From the project root directory, run the following command to create a separate virtual environment:
 
-        conda create --name <project_name> python=3.7
+        conda create --name <environment_name> python=3.7
 
 5. Activate the virtual environment:
     
-        conda activate <project_name>
+        conda activate <environment_name>
 
-6. Install required packages:
+6. Install required Python dependencies:
 
         pip install -r requirements.txt
 
 
 ## Running the scripts
 
-### `data` directory
-
-Please download the data.zip folder from https://zenodo.org/record/7506968#.Y7cNCdXP1PY
-(DOI: 10.5281/zenodo.7506968) and extract its contents. The MRI signal data
-acquired in this study are provided in csv format and can be found in the
-`data/SixTestCompounds/01_signals` folder.
-
-Each csv file contains the liver and spleen region of interest (ROI) time 
-curve data for a single rat at a specific site and day, after administration of
-the test compound of interest.
-
-The corresponding filename for each file is formatted as a string containing 
-study descriptors (metadata) separated by underscores, i.e.,
-filename = `compound_site_RatNumber_dayNumber_dataType`,
-e.g., `Asunaprevir_E_Rat2_2_Signals`.
-
-
 ### `src` directory
 
-All necessary source code for reproducing the results presented in the 
-manuscript are located within the `src` directory of this project. This
-consists of 4 modules:
-```
-data.py
-models.py
-effect_sizes.py
-plots.py
-```
-1 class:
-```
-rat.py
-```
-and 1 script used to generate all outputs from the modules:
-```
-main.py
-```
+All necessary source code for reproducing the results from each 
+study are located within the `src` directory of this project. In
+its current form, the majority of scripts in this directory are
+intended to be used specifically for reproducing these results
+along with the data accompanying these studies. If the user wishes
+to analyse their own DCE-MRI data with the TRISTAN-rat model and
+define their own outputs, please see section `Interacting with the
+scripts` for guidelines on how to do this.
 
+### `Six Test Compounds` study
+Please download the `data.zip` and `results.zip` folders from
+https://zenodo.org/record/7506968#.Y7cNCdXP1PY
+(DOI: 10.5281/zenodo.7506968) and extract the contents. Please
+make sure the extracted contents are stored within the project's
+root directory.
 
-### `results` directory
+The results for this study are generated using the
+`SixTestCompounds.py` script located in the `src` directory.
+From within the project's root directory, run the script using
+the following command:
 
-Please download the results.zip folder from https://zenodo.org/record/7506968#.Y7cNCdXP1PY
-(DOI: 10.5281/zenodo.7506968) and extract its contents. Results may be found
-within the `results` directory and are generated from the code by running the
-main script using the following command from within the project's root directory:
-
-    python src/main.py --study SixTestCompounds
+    python src/SixTestCompounds.py --study SixTestCompounds
 
 This will create a results folder with the following structure:
 ```
@@ -136,9 +111,9 @@ As the tracer kinetic model used in this study produces estimated parameter
 variables, modelling outputs may vary slightly between different iterations.
 Therefore, upon each execution of the code, a top-level directory named after 
 the date the analysis was conducted is created for storing the results from
-that particular execution. For reference, the results and figures shown in this 
-manuscript were created using the outputs contained in 
-`results/SixTestCompounds/2022-09-01`.
+that particular execution. For reference, the results and figures presented in
+the accompanying manuscript to the `Six Test Compounds` study were created using the
+outputs contained in `results/SixTestCompounds/2022-09-01`.
 
 `01_model_ouputs` contains all outputs generated as result of the tracer kinetic
 model fitting. Within this, plotted signal time curves for each acquistion per 
@@ -155,12 +130,43 @@ tracer kinetic modelling output. This is summarised in tabular format in
 folder. `fit_errors.txt` contains an ID list for any computational fitting errors
 found during quality control of the tracer kinetic modelling.
 
+### `Reproducibility` study
+
+*Coming soon...*
+
+## Interacting with the scripts
+
+The script `rat.py` contains the TRISTAN-rat model used for dynamic
+gadoxetate-enhanced MRI in rats. Within this script, all tracer
+kinetic modelling equations and associated default variables used
+in the preclinical dynamic gadoxetate-enhanced MR imaging work of
+the IMI-TRISTAN WP2 project are defined. The interested user may employ
+the funtions in this script to develop their own analysis workflow using
+their own datasets, by creating similar scripts to those shown in the
+TRISTAN-rat `src` directory.
+
+### Input data requirements
+
+The models outlined in `rat.py` may be used to fit liver and spleen region
+of interest (ROI) time curve data provided by the user. This data must be
+provided in a csv format to match the data contained inside the
+`data/SixTestCompounds/01_signals` subfolder. Here, each csv file contains the
+liver and spleen ROI time curve data for a single rat at a specific site and
+day, after administration of the test compound of interest.
 
 ### `notebooks` directory
 
-An additional Jupyter notebook `TristanRat_examples.ipynb` has been provided for 
-interacting with some of the functions and methods of the TristanRat class 
-described in the `src/rat.py` script. To try some of these examples, run the command:
+An additional Jupyter notebook `TristanRat_examples.ipynb` has been provided
+for interacting with some of the functions and methods of the TristanRat class 
+described in the `src/rat.py` script.
+
+> **_PLEASE NOTE:_** The functions developed in this notebook are *examples* only
+> to demonstate how the functions and methods defined in `rat.py` may be used for
+> simulations and for fitting DCE-MRI datasets. It is up to the user to build their
+> own functions in a similar manner shown in the examples to employ the TRISTAN-rat
+> model in their own analysis workflow.
+
+To try some of these examples, run the command:
 
     jupyter notebook
 
@@ -189,3 +195,10 @@ The research leading to these results received funding from the [Innovative Medi
 Initiative](https://www.imi.europa.eu/) 2 Joint Undertaking under grant agreement No 
 116106. This Joint Undertaking receives support from the [European Union’s Horizon 2020](https://research-and-innovation.ec.europa.eu/funding/funding-opportunities/funding-programmes-and-open-calls/horizon-2020_en) research and innovation programme 
 and [EFPIA](https://www.efpia.eu/).
+
+
+## *References*
+*1. Melillo N, Scotcher D, Kenna JG, Green C, Hines CDG, Laitinen I, et al.*
+*Use of In Vivo Imaging and Physiologically-Based Kinetic Modelling to Predict*
+*Hepatic Transporter Mediated Drug–Drug Interactions in Rats. Pharmaceutics*
+*2023;15(3):896. doi: 10.3390/pharmaceutics15030896*
