@@ -8,8 +8,7 @@ message: >-
   metadata from this file.
 type: software
 authors:
-  - given-names: Ebony
-    name-particle: R.
+  - given-names: Ebony R.
     family-names: Gunwhy
     email: e.gunwhy@sheffield.ac.uk
     affiliation: >-
