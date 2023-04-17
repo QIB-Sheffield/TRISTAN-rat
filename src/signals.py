@@ -98,7 +98,9 @@ def convert_to_deltaR1(combined_signals: pd.DataFrame,
     dR1 = R1 - R10
     dR1 = dR1[np.logical_not(np.isnan(dR1))]
 
-    signals[metadata['substudy']][metadata['day']][metadata['subject']][f"Delta R1 {time_curve.replace(' (a.u.)', '')} (s-1)"] = dR1
+    signals[metadata['substudy']][metadata['day']][metadata['subject']][f"Delta R1 \
+                                                                        {time_curve.replace(' (a.u.)','')} \
+                                                                        (s-1)"] = dR1
 
 
 def get_subject_list(signals: dict
@@ -115,7 +117,9 @@ def get_subject_list(signals: dict
     """
     subject_list = []
     for substudy, day in list(itertools.product(signals.keys(), [1, 2])):
-        subject_list.append([substudy, day, list(signals[substudy][day].keys())])
+        subject_list.append([substudy,
+                             day,
+                             list(signals[substudy][day].keys())])
 
     return subject_list
 
@@ -151,11 +155,13 @@ def get_average_curves(signals: dict,
         signal_average = signal/num_subjects
 
         if 'fit' in time_curve:
-            average_signal = pd.DataFrame({'Time (s)': time_fit,
-                                           'Average deltaR1 (s-1)': signal_average})
+            average_signal = (pd
+                              .DataFrame({'Time (s)': time_fit,
+                                          'Average deltaR1 (s-1)': signal_average}))
         else:
-            average_signal = pd.DataFrame({'Time (s)': time_observed,
-                                           'Average deltaR1 (s-1)': signal_average})
+            average_signal = (pd
+                              .DataFrame({'Time (s)': time_observed,
+                                          'Average deltaR1 (s-1)': signal_average}))
 
         signals[substudy][day]['Average ' + time_curve] = average_signal
 
@@ -256,7 +262,7 @@ def fit_data(study: str,
         for curve in spleen_curves:
             convert_to_deltaR1(combined_signals, curve, R10S, FA, TR,
                                spleen_signal_model, signals, metadata)
-        
+
         save_name = data.get_results_folder(study,
                                             '01_model_outputs',
                                             'relaxation_rates_and_signals',
@@ -269,7 +275,8 @@ def fit_data(study: str,
         # Create DataFrame for storing estimated parameters
         vars = rat.export_variables()
         name = pd.DataFrame({"Data file": [file]*vars.shape[0]})
-        substudy = pd.DataFrame({"Substudy": [metadata['substudy']]*vars.shape[0]})
+        substudy = pd.DataFrame({"Substudy": [metadata['substudy']]*vars
+                                 .shape[0]})
         drug = pd.DataFrame({"Drug": [metadata['drug']]*vars.shape[0]})
         site = pd.DataFrame({"Site": [metadata['site']]*vars.shape[0]})
         subj = pd.DataFrame({"Rat": [metadata['subject']]*vars.shape[0]})
