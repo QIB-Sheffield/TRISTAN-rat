@@ -1,8 +1,10 @@
 """Data handling.
 
-A module which locates files and filenames,
-and returns filename descriptions of all project input data
-along with pathnames where results should be stored.
+A module which organises the datasets by locating files and filenames,
+returning filename descriptions of all project input data, along with
+pathnames where results should be stored. Additionally cleans data, e.g.,
+removing errors due to model non-convergence and datasets with insufficient
+sample numbers.
 """
 # imports
 import os
@@ -86,7 +88,8 @@ def get_files(study: str,
 # File metadata
 def get_metadata(filename: str,
                  files: Path
-                 ) -> TypedDict('metadata', {'drug': str,
+                 ) -> TypedDict('metadata', {'substudy': str,
+                                             'drug': str,
                                              'site': str,
                                              'subject': int,
                                              'day': int,
@@ -113,10 +116,11 @@ def get_metadata(filename: str,
     """
     filename_elements = filename.split('_')
     metadata = {}
-    metadata['drug'] = filename_elements[0]
-    metadata['site'] = filename_elements[1]
-    metadata['subject'] = int(filename_elements[2][3:])
-    metadata['day'] = int(filename_elements[3])
+    metadata['substudy'] = filename_elements[0]
+    metadata['drug'] = filename_elements[1]
+    metadata['site'] = filename_elements[2]
+    metadata['subject'] = int(filename_elements[3][3:])
+    metadata['day'] = int(filename_elements[4])
     metadata['signals'] = pd.read_csv(files)
 
     return metadata
@@ -187,3 +191,106 @@ def get_results_folder(study: str,
     save_name = f"{filepath}.{file_type}"
 
     return save_name
+
+# Data cleaning
+def remove_data_errors(parameter_data: pd.DataFrame,
+                       study: str
+                       ) -> pd.DataFrame:
+    """Cleans data.
+
+    Removes computational fitting errors in biomarker prediction caused by
+    non-convergence of the model fitting algorithm, i.e., the output of
+    boundary values instead of true values, e.g., gadoxetate extraction
+    fraction, E=100%.
+
+    Args:
+        parameter_data: DataFrame containing estimated parameter variables.
+        study: Study name of interest (e.g., 'SixTestCompounds').
+
+    Returns:
+        Cleaned DataFrame.
+    """
+    data_pivoted = pd.pivot_table(parameter_data,
+                                  values='Value',
+                                  columns=['Symbol'],
+                                  index=['Substudy',
+                                         'Site',
+                                         'Drug',
+                                         'Rat',
+                                         'Day'])
+
+    # Remove computational fitting errors based on subjects where gadoxetate
+    # extraction fraction, E is close or equal to 100% (i.e., >= 99%)
+    fit_errors = data_pivoted[data_pivoted['E'] >= 99.95]
+    fit_errors_removed = (data_pivoted[~data_pivoted
+                                       .index.isin(fit_errors.index)])
+
+    # Save index metadata for computational fitting errors
+    save_name = get_results_folder(study,
+                                   '01_model_outputs',
+                                   None,
+                                   None,
+                                   'fit_errors',
+                                   'txt')
+    with open(save_name, "w") as output:
+        output.write(str(list([fit_errors.index])))
+
+    cleaned_parameter_data = fit_errors_removed.stack().reset_index()
+    cleaned_parameter_data.rename(columns={0: 'Value'}, inplace=True)
+
+    return cleaned_parameter_data
+
+
+def remove_insufficient_data(parameter_data: pd.DataFrame,
+                             study: str
+                            ) -> pd.DataFrame:
+     """Removes data with insufficient number of observations.
+
+    Removes cases where only one acquisition per subject is present
+    (i.e., day 1 or day 2 data are missing), or whole substudies
+    where data for only 1 subject is present.
+
+    Args:
+        parameter_data: DataFrame containing estimated parameter variables.
+        study: Study name of interest (e.g., 'Reproducibility').
+
+    Returns:
+        Cleaned DataFrame.
+    """
+     data_pivoted = pd.pivot_table(parameter_data,
+                                   values='Value',
+                                   columns=['Symbol'],
+                                   index=['Substudy',
+                                          'Drug',
+                                          'Site',
+                                          'Fstrength',
+                                          'Site_Fstrength',
+                                          'Time_period',
+                                          'Rat',
+                                          'Day'])
+     # Remove subjects with missing acquisition on day 1 or day 2
+     missing_days_removed = (data_pivoted[data_pivoted
+                                          .groupby(['Substudy',
+                                                    'Site',
+                                                    'Rat'])
+                                                    .transform('count') > 1]
+                                                    .dropna())
+     missing_days_removed_clean = missing_days_removed.stack().reset_index()
+     missing_days_removed_clean.rename(columns={0: 'Value'}, inplace=True)
+     
+     # Count number of substudies with only 1 subject
+     counts = missing_days_removed_clean.groupby(['Symbol',
+                                                  'Substudy',
+                                                  'Site',
+                                                  'Drug',
+                                                  'Day'])['Rat'].count()
+     
+     # Remove substudies with only 1 subject
+     substudy_to_drop = []
+     for i in counts.index:
+         if counts[i]==1:
+             substudy_to_drop.append(i[1])
+     insufficient_data_removed = missing_days_removed_clean[~missing_days_removed_clean['Substudy'].isin(substudy_to_drop)]
+     insufficient_data_removed.reset_index(drop=True, inplace=True)
+     
+     return insufficient_data_removed

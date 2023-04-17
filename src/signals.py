@@ -19,7 +19,7 @@ def split_groups(files: list,
                  ) -> Dict[str, Dict[str, Dict[int, pd.DataFrame]]]:
     """Splits signal data into control and treatment groups.
 
-    A function to separate control (day 1) and treatment (day 2)
+    A function to separate baseline (day 1) and follow-up (day 2)
     time curve data for each respective compound administered to
     rats.
 
@@ -29,21 +29,21 @@ def split_groups(files: list,
 
     Returns:
         A nested dictionary storing time curves for respective
-        compounds ('drug') administered to rats. Within this, there
-        are two nested dictionaries, dividing time curves into control
-        (baseline, day '1') and treatment (follow-up, day '2') groups.
+        compounds ('drug') administered to rats. Within this,
+        there are two nested dictionaries, dividing time curves
+        into baseline (day '1') and follow-up (day '2') groups.
     """
     time_curves = {}
     for n, file in enumerate(files):
         metadata = data.get_metadata(filenames[n], file)
 
-        time_curves[metadata['drug']] = {}
-        time_curves[metadata['drug']][1] = {}
-        time_curves[metadata['drug']][2] = {}
+        time_curves[metadata['substudy']] = {}
+        time_curves[metadata['substudy']][1] = {}
+        time_curves[metadata['substudy']][2] = {}
 
     for n, file in enumerate(files):
         metadata = data.get_metadata(filenames[n], file)
-        (time_curves[metadata['drug']][metadata['day']]
+        (time_curves[metadata['substudy']][metadata['day']]
          .update({metadata['subject']: metadata['signals']}))
 
     return time_curves
@@ -70,7 +70,7 @@ def convert_to_deltaR1(combined_signals: pd.DataFrame,
 
     Args:
         combined_signals: Dataframe containing observed and fitted
-            liver and spleen data for single rat from one
+            liver and spleen data for a single rat from one
             acquisition.
         time_curve: Time curve of interest, e.g., 'Liver fit'.
         R10: Precontrast relaxation rate corresponding to time
@@ -98,24 +98,24 @@ def convert_to_deltaR1(combined_signals: pd.DataFrame,
     dR1 = R1 - R10
     dR1 = dR1[np.logical_not(np.isnan(dR1))]
 
-    signals[metadata['drug']][metadata['day']][metadata['subject']][f"Delta R1 {time_curve.replace(' (a.u.)', '')} (s-1)"] = dR1
+    signals[metadata['substudy']][metadata['day']][metadata['subject']][f"Delta R1 {time_curve.replace(' (a.u.)', '')} (s-1)"] = dR1
 
 
 def get_subject_list(signals: dict
                      ) -> list:
-    """Get subject index list per drug and day.
+    """Get subject index list per substudy and day.
 
     Args:
         signals: Dictionary containing all observed and fitted
             liver and spleen data for all rats and all acquistions.
 
     Returns:
-        List of index combinations for each drug, day, and subject in
+        List of index combinations for each substudy, day, and subject in
         study of interest.
     """
     subject_list = []
-    for drug, day in list(itertools.product(signals.keys(), [1, 2])):
-        subject_list.append([drug, day, list(signals[drug][day].keys())])
+    for substudy, day in list(itertools.product(signals.keys(), [1, 2])):
+        subject_list.append([substudy, day, list(signals[substudy][day].keys())])
 
     return subject_list
 
@@ -124,7 +124,7 @@ def get_average_curves(signals: dict,
                        subject_list: list,
                        time_curve: str
                        ) -> None:
-    """Extracts time curve averages per drug and day.
+    """Extracts time curve averages per substudy and day.
 
     Calculates time curve averages over all subjects and stores
     result in new key within the 'signals' dictionary.
@@ -132,20 +132,21 @@ def get_average_curves(signals: dict,
     Args:
         signals: Dictionary containing all observed and fitted
             liver and spleen data for all rats and all acquistions.
-        subject_list: List of index combinations for each drug, day, and
+        subject_list: List of index combinations for each substudy, day, and
             subject in study of interest.
         time_curve: Time curve of interest, e.g., 'Liver fit'.
     """
     for i in subject_list:
-        drug = i[0]
-        subjectRange = i[2]
-        day = i[1]
-        signal = 0
-        num_subjects = len(subjectRange)
-        for subject in range(subjectRange[0], subjectRange[-1] + 1):
-            signal = signal + signals[drug][day][subject][time_curve]
-            time_observed = signals[drug][day][subject]['Time (s)']
-            time_fit = signals[drug][day][subject]['Time fit (s)']
+        if i[2] != []:
+            substudy = i[0]
+            subjectRange = i[2]
+            day = i[1]
+            signal = 0
+            num_subjects = len(subjectRange)
+            for subject in range(subjectRange[0], subjectRange[-1] + 1):
+                signal = signal + signals[substudy][day][subject][time_curve]
+                time_observed = signals[substudy][day][subject]['Time (s)']
+                time_fit = signals[substudy][day][subject]['Time fit (s)']
 
         signal_average = signal/num_subjects
 
@@ -156,7 +157,7 @@ def get_average_curves(signals: dict,
             average_signal = pd.DataFrame({'Time (s)': time_observed,
                                            'Average deltaR1 (s-1)': signal_average})
 
-        signals[drug][day]['Average ' + time_curve] = average_signal
+        signals[substudy][day]['Average ' + time_curve] = average_signal
 
 
 def fit_data(study: str,
@@ -185,7 +186,7 @@ def fit_data(study: str,
         rat = model()
         metadata = data.get_metadata(filenames[n], file)
         # Perform the fit
-        signal_df = signals[metadata['drug']][metadata['day']][metadata['subject']]
+        signal_df = signals[metadata['substudy']][metadata['day']][metadata['subject']]
         ts = signal_df["Time (s)"].values
         rat.dt = ts[1] - ts[0]
         rat.dose = 0.0075
@@ -243,7 +244,7 @@ def fit_data(study: str,
         fitted_signals_df["Liver fit (a.u.)"] = rat.liver_signal
         combined_signals = pd.concat([signal_df,
                                       fitted_signals_df], axis=1)
-        signals[metadata['drug']][metadata['day']][metadata['subject']] = combined_signals
+        signals[metadata['substudy']][metadata['day']][metadata['subject']] = combined_signals
         col_names = combined_signals.columns
         liver_curves = [x for x in col_names if 'Liver' in x]
         spleen_curves = [x for x in col_names if 'Spleen' in x]
@@ -268,11 +269,12 @@ def fit_data(study: str,
         # Create DataFrame for storing estimated parameters
         vars = rat.export_variables()
         name = pd.DataFrame({"Data file": [file]*vars.shape[0]})
+        substudy = pd.DataFrame({"Substudy": [metadata['substudy']]*vars.shape[0]})
         drug = pd.DataFrame({"Drug": [metadata['drug']]*vars.shape[0]})
         site = pd.DataFrame({"Site": [metadata['site']]*vars.shape[0]})
         subj = pd.DataFrame({"Rat": [metadata['subject']]*vars.shape[0]})
         day = pd.DataFrame({"Day": [metadata['day']]*vars.shape[0]})
-        vars = pd.concat([name, drug, site, subj, day, vars], axis=1)
+        vars = pd.concat([name, substudy, drug, site, subj, day, vars], axis=1)
 
         # Add to main output
         if all_vars is None:

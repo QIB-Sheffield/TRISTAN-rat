@@ -1,4 +1,4 @@
-"""Main script.
+"""SixTestCompounds analysis main script.
 
 A script which can be called from the command line to perform
 the tracer kinetic modelling and generate all resulting reports
@@ -7,8 +7,8 @@ and figures for a specific study of interest.
 import argparse
 import itertools
 import data
-import models
-import effect_sizes
+import signals
+import analyses
 import plots
 from rat import TristanRat
 
@@ -23,19 +23,19 @@ def main(study: str
     # Get files and filenames
     files, filenames = data.get_files(study, '01_signals')
     # Split control and treatment groups
-    signals = models.split_groups(files, filenames)
+    signal_dict = signals.split_groups(files, filenames)
     # Fit data and get all estimated parameter variables
-    all_parameters = models.fit_data(study, filenames, files,
-                                     signals, TristanRat)
+    all_parameters = signals.fit_data(study, filenames, files,
+                                     signal_dict, TristanRat)
 
     # Get time curve averages per drug and per day
-    subject_list = models.get_subject_list(signals)
+    subject_list = signals.get_subject_list(signal_dict)
     for curve in ['Delta R1 Liver (s-1)', 'Delta R1 Liver fit (s-1)',
                   'Delta R1 Spleen (s-1)']:
-        models.get_average_curves(signals, subject_list, curve)
+        signals.get_average_curves(signal_dict, subject_list, curve)
 
     # Update dictionary keys for average delta R1 plots
-    fits = signals
+    fits = signal_dict
     fits['G2 Ciclosporin'] = fits.pop('Cyclosporine')
     fits['G2 Rifampicin'] = fits.pop('Rifampicin')
     fits['D Ketoconazole'] = fits.pop('Ketoconazole')
@@ -73,7 +73,7 @@ def main(study: str
     # Remove missing data
     # and computational fitting errors from all estimated parameter data
     print("Removing computational fitting errors and missing data")
-    all_parameters_cleaned = effect_sizes.remove_data_errors(all_parameters,
+    all_parameters_cleaned = analyses.remove_data_errors(all_parameters,
                                                              study)
 
     # Create list of condition variables to group by
@@ -83,7 +83,7 @@ def main(study: str
 
     # Obtain effect size summaries and save as csv
     print("Calculating average effect sizes")
-    effect_sizes.save_effect_sizes(all_parameters_cleaned, params,
+    analyses.save_effect_sizes(all_parameters_cleaned, params,
                                    variables, study)
 
     # Plot biomarker distributions between Day 1 and Day 2 per rat

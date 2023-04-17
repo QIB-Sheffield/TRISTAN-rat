@@ -12,7 +12,7 @@ import data
 
 # Helper function
 def extract_curves(signals: dict,
-                   drug: str,
+                   substudy: str,
                    time_curve: str
                    ) -> pd.DataFrame:
     """Extract observed or fitted deltaR1 time curve data.
@@ -20,15 +20,15 @@ def extract_curves(signals: dict,
     Args:
         signals: Dictionary containing all observed and fitted
             liver and spleen data for all rats and all acquistions.
-        drug: Test compound of interest.
+        substudy: Substudy of interest.
         time_curve: DeltaR1 time curve of interest (e.g., 'Liver' or
             'Liver fit').
     Returns:
         DataFrame containing extracted deltaR1 time curve data.
     """
     extracted_curves = (pd.
-                        concat([signals[drug][1][f"Average Delta R1 {time_curve} (s-1)"],
-                                signals[drug][2][f"Average Delta R1 {time_curve} (s-1)"]['Average deltaR1 (s-1)']],
+                        concat([signals[substudy][1][f"Average Delta R1 {time_curve} (s-1)"],
+                                signals[substudy][2][f"Average Delta R1 {time_curve} (s-1)"]['Average deltaR1 (s-1)']],
                                axis=1))
     extracted_curves.columns = ['Time (s)', 'Control', 'Treatment']
 
@@ -75,7 +75,7 @@ def get_signal_plots(study: str,
     plt.xlabel("Time [sec]")
     plt.ylabel('Signal [a.u.]')
     plt.ylim(bottom=0, top=16)
-    plt.title(metadata['drug'] + ' (Rat ' + str(metadata['subject']) +
+    plt.title(metadata['substudy'] + ' (Rat ' + str(metadata['subject']) +
               ', Day ' + str(metadata['day']) + ')')
     plt.legend(loc='best')
     plt.tight_layout()
@@ -91,13 +91,13 @@ def get_signal_plots(study: str,
 
 
 def get_deltaR1_plots(signals: dict,
-                      drug: str,
+                      substudy: str,
                       ROI: str,
                       study: str,
                       *, is_fitted: bool = False,
                       YLIM: tuple
                       ) -> None:
-    """Plots average MRI delta R1 curves per drug.
+    """Plots average MRI delta R1 curves per substudy.
 
     Plots average gadoxetate deltaR1-time activity curves within a region
     of interest for each test compound administered.
@@ -105,7 +105,7 @@ def get_deltaR1_plots(signals: dict,
     Args:
         signals: Dictionary containing all observed and fitted
             liver and spleen data for all rats and all acquistions.
-        drug: Test compound of interest.
+        substudy: Substudy of interest.
         ROI: Region of interest (e.g., 'Liver' or 'Spleen').
         study: Study name of interest (e.g., 'SixTestCompounds').
         is_fitted: Bool which allows user to define whether signal time.
@@ -113,7 +113,7 @@ def get_deltaR1_plots(signals: dict,
             should be used only for unfitted signal time curve data.
         YLIM: Tuple containing upper and lower y-axis limits for the plot.
     """
-    observed = extract_curves(signals, drug, ROI)
+    observed = extract_curves(signals, substudy, ROI)
     observed['Time (min)'] = observed['Time (s)']/60
 
     plt.rcParams["axes.labelsize"] = 50
@@ -152,7 +152,7 @@ def get_deltaR1_plots(signals: dict,
                  label="Treatment - observed")
 
     if is_fitted is True:
-        fitted = extract_curves(signals, drug, f"{ROI} fit")
+        fitted = extract_curves(signals, substudy, f"{ROI} fit")
         fitted['Time (min)'] = fitted['Time (s)']/60
         g = sns.lineplot(data=fitted, x="Time (min)", y='Control',
                          ls='-', linewidth=4, label="Control - fitted")
@@ -160,13 +160,13 @@ def get_deltaR1_plots(signals: dict,
         g = sns.lineplot(data=fitted, x="Time (min)", y='Treatment',
                          ls='-', linewidth=4, label="Treatment - fitted")
 
-        fig_name = f"{drug}_{ROI}_deltaR1_fitted"
+        fig_name = f"{substudy}_{ROI}_deltaR1_fitted"
     else:
         g = sns.lineplot(data=observed, x="Time (min)", y='Control', ls='',)
-        fig_name = f"{drug}_{ROI}_deltaR1"
+        fig_name = f"{substudy}_{ROI}_deltaR1"
 
     plt.suptitle(f"Group mean {ROI} gadoxetate profiles in control and inhibitory phases \n (error bars represent standard deviation)")
-    g.set_title(f"{drug}", weight='bold')
+    g.set_title(f"{substudy}", weight='bold')
     g.set_xlabel("Time [min]", weight='bold')
     g.set_ylabel("\u0394 $R_{1}$ [$s^{-1}$]", weight='bold')
 
@@ -179,29 +179,38 @@ def get_deltaR1_plots(signals: dict,
     save_name = data.get_results_folder(study,
                                         '01_model_outputs',
                                         'figures',
-                                        'per_drug',
+                                        'per_substudy',
                                         fig_name,
                                         'png')
     plt.savefig(save_name)
+    
     plt.close()
 
 
-def pairplots(effect_size_data: pd.DataFrame,
-              biomarker: str,
-              study: str
-              ) -> None:
-    """Plots paired data distributions per biomarker.
+def plot_distributions(study: str,
+                       variable_name: dict,
+                       group_data: pd.DataFrame,
+                       variable: str,
+                       constant: str,
+                       benchmarks: pd.DataFrame,
+                       order: list
+                       ) -> None:
+    """Biomarker distribution plots per variance group of interest.
 
-    Plots estimated values for MRI biomarker of interest with connecting line
-    between day 1 (baseline saline) and day 2 (follow-up test compound)
-    datapoints, highlighting observed effect sizes caused by compounds.
+    Plots MRI biomarker distribution plots for a variable of interest,
+    e.g., across time periods (variable) at a specific centre (constant).
+    Overlaid with lines reprenting biomarker benchmark values derived as
+    the mean +/-95% CI across all substudies.
 
     Args:
-        effect_size_data: DataFrame containing statistical effect size
-            summaries.
-        biomarker: MRI biomarker of interest (e.g., 'Ktrans').
-        study: Study name of interest (e.g., 'SixTestCompounds').
-    """
+        study: Study name of interest (e.g., 'Reproducibility').
+        variable_name: Name of variable of interest.
+        group_data: DataFrame containing parameter values for a variable
+        of interest.
+        variable: Variable of interest (e.g., 'Time_period').
+        constant: Factor to keep constant (e.g., 'Site').
+        benchmarks: DataFrame containing biomarker benchmark values.        
+    """       
     plt.rcParams['savefig.dpi'] = 300
     plt.rcParams["axes.labelsize"] = 50
     plt.rcParams["axes.titlesize"] = 50
@@ -213,45 +222,119 @@ def pairplots(effect_size_data: pd.DataFrame,
     plt.rc('ytick', labelsize=40) 
     plt.rcParams["lines.linewidth"] = 4
     plt.rcParams['lines.markersize'] = 12
-
-    # use set_position
-    ax = plt.gca()
-    ax.spines['left'].set_color('k')
-    ax.spines['bottom'].set_color('k')
     
-    g = sns.catplot(data=effect_size_data[effect_size_data['Symbol'] == biomarker],
-                    x='Day', y='Value', sharey=True,
-                    hue='Rat', col='Drug', col_wrap=4,
+    ylabels = ['$K_{trans}$', '$k_{bh}$']
+    means = benchmarks['mean']
+    lower_cis = means - benchmarks['CI95']
+    upper_cis = means + benchmarks['CI95']
+    
+    if constant==None:
+        
+        g = sns.catplot(data=group_data, x=variable, y='Value', col='Symbol', kind='point', 
+            capsize=0.2, sharey=False, join=False, height=14, aspect=1.2, color='k', ci=95)
+
+        (g.set_titles("")
+        .axes[0,1].set(ylim=([0,0.4])))
+        
+        for i in range(len(ylabels)):
+            g.axes[0,i].set_ylabel(f"{ylabels[i]} [mL/min/mL]")
+            g.axes[0,i].axhline(means[i], color='blue', ls=':')
+            g.axes[0,i].axhline(lower_cis[i], color='red', ls='--')
+            g.axes[0,i].axhline(upper_cis[i], color='red', ls='--')
+        
+    else:
+        
+        g = sns.catplot(data=group_data, x=variable, y='Value', col=constant, row='Symbol', 
+                        kind='point', capsize=0.2, sharey='row', sharex=False, join=False, height=12, aspect=0.72, color='k',
+                        ci=95, col_order=order)
+
+        g.axes[1,0].set(ylim=([0,0.4]))
+        
+        for i in range(int(len(group_data.groupby(['Symbol'] + [constant]).count().index)/2)):
+            g.axes[0,i].axhline(means[0], color='blue', ls=':') # Ktrans reference values
+            g.axes[0,i].axhline(lower_cis[0], color='red', ls='--')
+            g.axes[0,i].axhline(upper_cis[0], color='red', ls='--')
+
+            g.axes[1,i].axhline(means[1], color='blue', ls=':') # kbh reference values
+            g.axes[1,i].axhline(lower_cis[1], color='red', ls='--')
+            g.axes[1,i].axhline(upper_cis[1], color='red', ls='--')
+        
+   
+    g.axes[0,0].set(ylim=([0,1.5]))
+    g.fig.tight_layout()
+    
+    save_name = data.get_results_folder(study,
+                                        '02_analyses',
+                                        'figures',
+                                        'reproducibility',
+                                        f"fig_{variable_name}",
+                                        'png')
+    plt.savefig(save_name)
+    plt.close()
+
+
+def pairplots(study: str,
+              variable_name: dict,
+              pair_data: pd.DataFrame,
+              x: str,
+              hue: str,
+              col: str,
+              row: str,
+              palette: str,
+              error: int,
+              ylabels: list,
+              ) -> None:
+    """Plots paired data distributions per biomarker.
+
+    Plots estimated values for MRI biomarker of interest with connecting line
+    between day 1 (baseline saline) and day 2 (follow-up test compound)
+    datapoints, highlighting observed effect sizes caused by compounds.
+
+    Args:
+        study: Study name of interest (e.g., 'SixTestCompounds').
+        variable_name: Name of variable of interest.
+        pair_data: DataFrame containing parameter data.
+        x: Variable to plot along x-axis.
+        hue: Variable for hue settings.
+        col: Variable to plot along column subplots.
+        row: Variable to plot along row subplots.
+        palette: List or string defining colour palette for plot
+        (e.g., 'rocket')
+        error: Error interval for error bars (e.g., 95 for 95% CI)
+        ylabels: List of labels for y-axes.
+    """   
+    g = sns.catplot(data=pair_data,
+                    x=x,
+                    y='Value',
+                    hue=hue,
+                    col=col,
+                    row=row,
                     kind="point",
-                    height=8, aspect=1.2,
+                    sharey=False,
+                    palette=palette,
+                    height=8,
+                    aspect=1,
                     legend=False,
-                    errorbar=None)
+                    ci=error)
 
-    (g.set_xticklabels(["Control", "Treatment"], weight='bold')
-     .set_titles("{col_name}", weight='bold')
-     .despine(left=False))
-
-    if biomarker == 'Ktrans':
-        (g.set_axis_labels("", "$K^{trans}$ [mL/min/mL]", weight='bold')
-         .set(ylim=(0, 1.4)))
-    elif biomarker == 'kbh':
-        (g.set_axis_labels("", "$k_{bh}$ [mL/min/mL]", weight='bold')
-         .set(ylim=(0, 0.35)))
-    elif biomarker == 'khe':
-        (g.set_axis_labels("", "$k_{he}$ [mL/min/mL]", weight='bold')
-         .set(ylim=(0, 15)))
-
+    (g.set_titles("")
+     .axes[0,1].set(ylim=([0,0.4])))
+    g.axes[0,0].set(ylim=([0,1.5]))
+    
     for ax in g.axes.flatten():
         ax.tick_params(labelleft=True, labelbottom=True)
 
     plt.legend(title='Rat', bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
+    for i in range(len(ylabels)):
+        g.axes[0,i].set_ylabel(f"{ylabels[i]} [mL/min/mL]")
+
     g.fig.tight_layout()
     save_name = data.get_results_folder(study,
-                                        '02_effect_sizes',
+                                        '02_analyses',
                                         'figures',
-                                        None,
-                                        f"{biomarker}_plot",
+                                        'repeatability',
+                                        variable_name,
                                         'png')
     plt.savefig(save_name)
     plt.close()
