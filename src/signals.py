@@ -98,9 +98,7 @@ def convert_to_deltaR1(combined_signals: pd.DataFrame,
     dR1 = R1 - R10
     dR1 = dR1[np.logical_not(np.isnan(dR1))]
 
-    signals[metadata['substudy']][metadata['day']][metadata['subject']][f"Delta R1 \
-                                                                        {time_curve.replace(' (a.u.)','')} \
-                                                                        (s-1)"] = dR1
+    signals[metadata['substudy']][metadata['day']][metadata['subject']][f"Delta R1 {time_curve.replace(' (a.u.)','')} (s-1)"] = dR1
 
 
 def get_subject_list(signals: dict

@@ -353,8 +353,7 @@ def main(study: str
     benchmarks.to_csv(save_name)
 
     # plot saline-saline data
-    print("saline-saline: Plotting individual biomarker \
-          distributions between Day 1 and Day 2")
+    print("saline-saline: Plotting individual biomarker distributions between Day 1 and Day 2")
     plots.pairplots(study,
                     'saline-saline',
                     saline_data,
@@ -366,8 +365,7 @@ def main(study: str
                     95,
                     ylabels=['$K_{trans}$', '$k_{bh}$'])
     # plot saline-rifampicin data
-    print("saline-rifampicin: Plotting individual biomarker \
-          distributions between Day 1 and Day 2")
+    print("saline-rifampicin: Plotting individual biomarker distributions between Day 1 and Day 2")
     plots.pairplots(study,
                     'saline-rifampicin',
                     rifampicin_data,
