@@ -132,7 +132,44 @@ found during quality control of the tracer kinetic modelling.
 
 ### `Reproducibility` study
 
-*Coming soon...*
+Please download the `data.zip` and `results.zip` folders from
+https://zenodo.org/record/7838397#.ZD3jlvzMJPY
+(DOI: 10.5281/zenodo.7838397) and extract the contents. Please
+make sure the extracted contents are stored within the project's
+root directory.
+
+The results for this study are generated using the
+`Reproducibility.py` script located in the `src` directory.
+From within the project's root directory, run the script using
+the following command:
+
+    python src/Reproducibility.py --study Reproducibility
+
+This will create a results folder with the following structure:
+```
+results/
+|
+|---- StudyName (e.g., 'Reproducibility')/
+|    |
+|    |---- DateOfAnalysis YYYY-MM-DD (e.g., '2023-04-14')/
+|    |     |
+|    |     |---- 01_model_outputs/
+|    |     |    |---- figures/
+|    |     |    |       |---- per_substudy/
+|    |     |    |       |---- per_rat/
+|    |     |    |---- relaxation_rates_and_signals
+|    |     |    |---- all_parameters.csv
+|    |     |    |---- fit_errors.txt
+|    |     |---- 02_analyses/
+|    |     |    |---- figures/
+|    |     |    |---- repeatability/
+|    |     |    |---- reproducibility
+|    |     |    |---- benchmarks.csv
+|    |     |    |---- mixed_anova.csv
+```
+
+For reference, the results and figures presented in the accompanying manuscript
+were created using the outputs contained in `results/SixTestCompounds/2023-04-17`.
 
 ## Interacting with the scripts
 
