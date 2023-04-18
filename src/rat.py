@@ -162,12 +162,17 @@ class TristanRat():
     # Liver parameters
     Fb = 2.27/60  # https://doi.org/10.1021/acs.molpharmaceut.1c00206
                   # (Changed from 3.61/60 on 07/03/2022)
-                  # From Brown the cardiac output of rats is 110.4 mL/min (table 3-1) ~ 6.62L/h
-                  # From table 3-4, sum of hepatic artery and portal vein blood flow is 17.4% of total cardiac output ~ 1.152 L/h
-                  # Mass of liver is 9.15g, with density of 1.08 kg/L, therefore ~8.47mL
-                  #  9.18g refers to the whole liver, i.e. intracellular tissue + extracellular space + blood
+                  # From Brown the cardiac output of rats is
+                  # 110.4 mL/min (table 3-1) ~ 6.62L/h
+                  # From table 3-4, sum of hepatic artery and portal vein
+                  # blood flow is 17.4% of total cardiac output ~ 1.152 L/h
+                  # Mass of liver is 9.15g, with density of 1.08 kg/L,
+                  # therefore ~8.47mL
+                  #  9.18g refers to the whole liver, i.e. intracellular tissue
+                  # + extracellular space + blood
                   # Dividing 1.152L/h for 8.47mL we obtain ~2.27 mL/h/mL liver
-                  # Calculation done with values in Table S2 of our article lead to the same results
+                  # Calculation done with values in Table S2 of our article
+                  # lead to the same results
 
     E = 0.4
     veL = 0.230
@@ -176,20 +181,20 @@ class TristanRat():
     S0liver = 200
 
     # Whole body parameters
-    Hct = 0.418         # Cremer et al, J Cereb Blood Flow Metab 3, 254-256 (1983)
-    VL = 8.47           # Scotcher et al 2021, DOI: 10.1021/acs.molpharmaceut.1c00206
-                        # Supplementary material, Table S2
-    GFR = 0.023         # https://doi.org/10.1152/ajprenal.1985.248.5.F734
-    P = 0.172           # Estimated from rat repro study data using PBPK model
-                        # Table 3 in Scotcher et al 2021
-                        # DOI: 10.1021/acs.molpharmaceut.1c00206
-    VB = 15.8           # 0.06 X BW + 0.77, Assuming body weight (BW) = 250 g
-                        # Lee and Blaufox. Blood volume in the rat.
-                        # J Nucl Med. 1985 Jan;26(1):72-6.
-    VE = 30             # All tissues, including liver.
-                        # Derived from Supplementary material, Table S2
-                        # Scotcher et al 2021
-                        # DOI: 10.1021/acs.molpharmaceut.1c00206
+    Hct = 0.418  # Cremer et al, J Cereb Blood Flow Metab 3, 254-256 (1983)
+    VL = 8.47    # Scotcher et al 2021, DOI: 10.1021/acs.molpharmaceut.1c00206
+                 # Supplementary material, Table S2
+    GFR = 0.023  # https://doi.org/10.1152/ajprenal.1985.248.5.F734
+    P = 0.172    # Estimated from rat repro study data using PBPK model
+                 # Table 3 in Scotcher et al 2021
+                 # DOI: 10.1021/acs.molpharmaceut.1c00206
+    VB = 15.8    # 0.06 X BW + 0.77, Assuming body weight (BW) = 250 g
+                 # Lee and Blaufox. Blood volume in the rat.
+                 # J Nucl Med. 1985 Jan;26(1):72-6.
+    VE = 30      # All tissues, including liver.
+                 # Derived from Supplementary material, Table S2
+                 # Scotcher et al 2021
+                 # DOI: 10.1021/acs.molpharmaceut.1c00206
 
     @property
     def K(self):
@@ -213,7 +218,7 @@ class TristanRat():
 
     @property
     def rp(self):
-        """Relaxivity of rat blood (Hz/mM) depending on MRI field strength used."""
+        """Relaxivity of rat blood (Hz/mM)."""
         field = math.floor(self.field_strength)
         if field == 4.0:
             # relaxivity of blood in Hz/mM
@@ -230,7 +235,7 @@ class TristanRat():
 
     @property
     def rh(self):
-        """Relaxivity of rat hepatocytes (Hz/mM) depending on MRI field strength used."""
+        """Relaxivity of rat hepatocytes (Hz/mM)."""
         field = math.floor(self.field_strength)
         if field == 4.0:
             # relaxivity of hepatocytes in Hz/mM
@@ -244,7 +249,7 @@ class TristanRat():
 
     @property
     def R10L(self):
-        """Precontrast rat liver relaxation rate (1/sec) depending on MRI field strength used."""
+        """Precontrast rat liver relaxation rate (1/sec)."""
         field = math.floor(self.field_strength)
         if field == 4.0:
             # liver R1 in 1/sec (Changed from 1.285 on 06/08/2020)
@@ -258,7 +263,7 @@ class TristanRat():
 
     @property
     def R10S(self):
-        """Precontrast rat spleen relaxation rate (1/sec) depending on MRI field strength used."""
+        """Precontrast rat spleen relaxation rate (1/sec)."""
         field = math.floor(self.field_strength)
         if field == 4.0:
             # spleen R1 in 1/sec (Changed from 0.7458 on 23/07/2020)
@@ -272,7 +277,7 @@ class TristanRat():
 
     @property
     def t(self):
-        """1D time series array spanning the total length of the MRI acquisition."""
+        """1D time series array spanning MRI acquisition."""
         return np.arange(0, self._tmax+self._tstep, self._tstep)
 
     @property

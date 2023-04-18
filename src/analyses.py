@@ -6,7 +6,6 @@ errors, and performing ANOVA and Student's t-test.
 """
 # imports
 import pandas as pd
-import numpy as np
 import pingouin as pg
 from scipy import stats
 import data
@@ -29,9 +28,9 @@ def get_relative_error(variability: int,
     Returns:
         Relative error as integer value.
     """
-    
+
     relative_error = 1.96 * 100 * (variability / mean)
-    
+
     return relative_error
 
 
@@ -60,21 +59,28 @@ def summarise_group(group_data: pd.DataFrame,
         Dataframe containing group means, confidence intervals, and
         between-subject reproducibility and relative errors.
     """
-    if constants==None:
-        group_means = group_data.groupby(['Symbol'] + variables)['Value'].agg(['mean','std','sem'])
-        group_means['Constants'] = group_means.index.get_level_values(variables[0])
+    if constants is None:
+        group_means = (group_data
+                       .groupby(['Symbol'] + variables)['Value']
+                       .agg(['mean', 'std', 'sem']))
+        group_means['Constants'] = (group_means
+                                    .index.
+                                    get_level_values(variables[0]))
     else:
-        group_means = group_data.groupby(['Symbol'] + variables + constants)['Value'].agg(['mean','std','sem'])
-        group_means['Constants'] = group_means.index.get_level_values(constants[0])
-    
+        group_means = (group_data
+                       .groupby(['Symbol'] + variables + constants)['Value']
+                       .agg(['mean', 'std', 'sem']))
+        group_means['Constants'] = (group_means
+                                    .index.get_level_values(constants[0]))
+
     group_means['between_subject_reproducibility'] = get_relative_error(group_means['std'],
-                                                                     group_means['mean'])
+                                                                        group_means['mean'])
     group_means['between_subject_relative_error'] = get_relative_error(group_means['sem'],
-                                                                     group_means['mean'])
+                                                                       group_means['mean'])
 
     group_means['CI95'] = group_means['sem'].mul(1.96)
     group_means['Variables'] = variable_name
-    
+
     return group_means
 
 
@@ -97,25 +103,27 @@ def deconstruct_reproducibility(group_summaries: pd.DataFrame,
         between-subject reproducibility and relative errors, and
         between-substudy reproducibility errors.
     """
-    
-    if variable=='substudy':
-        grouper = ['Symbol','Variables']
+
+    if variable == 'substudy':
+        grouper = ['Symbol', 'Variables']
     else:
         grouper = ['Symbol', 'Constants', 'Variables']
-    
-    reproducibility_deconstructed = (group_summaries.query("Variables==@variable")
-                                         .groupby(grouper)['mean']
-                                         .agg(['mean','std','sem']))
+
+    reproducibility_deconstructed = (group_summaries
+                                     .query("Variables==@variable")
+                                     .groupby(grouper)['mean']
+                                     .agg(['mean', 'std', 'sem']))
     reproducibility_deconstructed['reproducibility'] = get_relative_error(reproducibility_deconstructed['std'],
                                                                           reproducibility_deconstructed['mean'])
     reproducibility_deconstructed[['between_subject_reproducibility',
                                    'between_subject_sem']] = (group_summaries
                                                               .query("Variables==@variable")
                                                               .groupby(grouper)['between_subject_reproducibility']
-                                                              .agg(['mean','sem']))
+                                                              .agg(['mean', 'sem']))
 
-    reproducibility_deconstructed['CI95'] = reproducibility_deconstructed['sem'].mul(1.96)
-    
+    reproducibility_deconstructed['CI95'] = (reproducibility_deconstructed['sem']
+                                             .mul(1.96))
+
     return reproducibility_deconstructed
 
 
@@ -142,20 +150,20 @@ def detect_absolute(uncertainty: int,
     # lowerCI95 = mean_benchmark - 1.96*(SEM_benchmark)
     # x + uncertainty < lowerCI95
     # x = possible drug dose detected [mL/min/mL]
-    
+
     lowerCI95 = benchmark_mean - benchmark_CI95
-      
+
     # solve for x: x + uncertainty*x < lowerCI95
     x = lowerCI95/(1 + uncertainty/100)
-    
+
     # absolute change detectable
     absolute = (benchmark_mean - x) / benchmark_mean
-    
+
     return absolute
 
 
 def get_constants(group_summaries: pd.DataFrame,
-                  variable:str
+                  variable: str
                   ) -> list:
     """Gets list of constants per variance group.
 
@@ -170,16 +178,18 @@ def get_constants(group_summaries: pd.DataFrame,
     Returns:
         List of unqiue contant factors for variance group.
     """
-    constants_list = group_summaries.query("Variables==@variable")['Constants'].unique()
-    
+    constants_list = (group_summaries
+                      .query("Variables==@variable")['Constants']
+                      .unique())
+
     return constants_list
 
 
 def get_anova_oneway(group_data: pd.DataFrame,
-               biomarker: str,
-               constant_name: str,
-               constant: str,
-               variables: list):
+                     biomarker: str,
+                     constant_name: str,
+                     constant: str,
+                     variables: list):
     """Calculates one-way ANOVA p-values per variance group.
 
     Performs one-way ANOVA to help understand the relative impact
@@ -200,14 +210,14 @@ def get_anova_oneway(group_data: pd.DataFrame,
         Statistical p-value result as integer value calculated from
         one-way ANOVA.
     """
-    if constant!=None:
-        aov_data = group_data[(group_data[constant_name]==constant) & (group_data['Symbol']==biomarker)]
+    if constant is not None:
+        aov_data = group_data[(group_data[constant_name] == constant) & (group_data['Symbol'] == biomarker)]
     else:
-        aov_data = group_data[group_data['Symbol']==biomarker]
-    
+        aov_data = group_data[group_data['Symbol'] == biomarker]
+
     aov = pg.anova(data=aov_data, dv='Value', between=variables)
     pvalue = aov['p-unc'].values[0]
-    
+
     return pvalue
 
 
@@ -233,10 +243,10 @@ def get_subject_repeatability(cleaned_parameter_data: pd.DataFrame
     subject_data.reset_index(inplace=True)
     subject_data[['between_day_mean',
                   'between_day_std']] = (subject_data[[1, 2]]
-                                         .agg(['mean','std'], axis=1))
+                                         .agg(['mean', 'std'], axis=1))
     subject_data['repeatability'] = get_relative_error(subject_data['between_day_std'],
                                                        subject_data['between_day_mean'])
-    
+
     return subject_data
 
 
@@ -270,7 +280,8 @@ def get_summary_stats(subject_data: pd.DataFrame,
 
     rats_avg = (rats.groupby(variables)[[1, 2, 'repeatability']]
                 .agg(['mean', 'std', 'sem']))
-    rats_avg['repeatability', 'CI95'] = rats_avg['repeatability']['sem'].mul(1.96)
+    rats_avg['repeatability', 'CI95'] = (rats_avg['repeatability']['sem']
+                                         .mul(1.96))
 
     rats_avg['simple_effect_size'] = (rats.groupby(variables)[1]
                                       .mean() -
@@ -278,7 +289,8 @@ def get_summary_stats(subject_data: pd.DataFrame,
                                       .mean())
     rats_avg['percentage_effect_size'] = (rats_avg['simple_effect_size'] / (rats
                                                                             .groupby(variables)[1]
-                                                                            .mean()).mul(100))
+                                                                            .mean())
+                                                                            .mul(100))
 
     rats_avg['standardised_effect_size'] = rats_avg['simple_effect_size'] / global_std
 
@@ -286,16 +298,19 @@ def get_summary_stats(subject_data: pd.DataFrame,
     rats_avg['p-value'] = (rats.groupby(variables)
                            .apply(lambda df: stats
                                   .ttest_rel(df[1], df[2])[1]))
-    for i in [1,2]:
-        rats_avg[i,'between_subject_variation'] = get_relative_error(rats_avg[i]['std'],
-                                                        rats_avg[i]['mean'])
+    for i in [1, 2]:
+        rats_avg[i,
+                 'between_subject_variation'] = get_relative_error(rats_avg[i]['std'],
+                                                                   rats_avg[i]['mean'])
         rats_avg[i, 'CI95'] = rats_avg[i]['sem'].mul(1.96)
-        
-    rats_avg['between_subject_variation_average'] = (rats_avg.groupby(level=1, axis=1)
+
+    rats_avg['between_subject_variation_average'] = (rats_avg
+                                                     .groupby(level=1, axis=1)
                                                      .mean()['between_subject_variation'])
-    rats_avg['between_subject_variation_CI95'] = 1.96*(rats_avg.groupby(level=1, axis=1)
+    rats_avg['between_subject_variation_CI95'] = 1.96*(rats_avg
+                                                       .groupby(level=1, axis=1)
                                                        .sem()['between_subject_variation'])
-        
+
     rats_avg.sort_index(axis=1, inplace=True)
 
     return rats_avg
@@ -322,23 +337,23 @@ def get_retest_results(study: str,
         A tuple containing two dataframes with statistical summaries for
         repeatability and effect size statistics on single-subject and
         substudy average levels, respectively.
-    """  
+    """
     # Pivot single-subject data
     data_per_subject = pd.pivot_table(cleaned_parameter_data,
-                                      values = 'Value',
-                                      index= ['Substudy',
-                                              'Symbol',
-                                              'Site',
-                                              'Fstrength',
-                                              'Time_period',
-                                              'Rat'],
+                                      values='Value',
+                                      index=['Substudy',
+                                             'Symbol',
+                                             'Site',
+                                             'Fstrength',
+                                             'Time_period',
+                                             'Rat'],
                                       columns='Day')
     # Get mean substudy values
-    data_per_substudy = (cleaned_parameter_data.groupby(['Substudy',
-                                                        'Symbol',
-                                                        'Day'])['Value']
-                                                        .mean().unstack())
-    
+    data_per_substudy = (cleaned_parameter_data
+                         .groupby(['Substudy',
+                                   'Symbol',
+                                   'Day'])['Value'].mean().unstack())
+
     # Get single-subject repeatability/effect-size statistics
     subject_stats = get_subject_repeatability(data_per_subject)
     subject_stats_overall = get_summary_stats(subject_stats, data_per_subject,
@@ -347,25 +362,25 @@ def get_retest_results(study: str,
     substudy_stats = get_subject_repeatability(data_per_substudy)
     substudy_stats_overall = get_summary_stats(substudy_stats,
                                                data_per_substudy, ['Symbol'])
-    
+
     # Save single-subject retest statistics
     save_name_singlesubject = data.get_results_folder(study,
-                                        '02_analyses',
-                                        'repeatability',
-                                        None,
-                                        dataset_name + '_singlesubject',
-                                        'csv')
+                                                      '02_analyses',
+                                                      'repeatability',
+                                                      None,
+                                                      dataset_name + '_singlesubject',
+                                                      'csv')
     subject_stats_overall.to_csv(save_name_singlesubject)
 
     # Save substudy-average retest statistics
     save_name_overall = data.get_results_folder(study,
-                                        '02_analyses',
-                                        'repeatability',
-                                        None,
-                                        dataset_name + '_overall',
-                                        'csv')
+                                                '02_analyses',
+                                                'repeatability',
+                                                None,
+                                                dataset_name + '_overall',
+                                                'csv')
     substudy_stats_overall.to_csv(save_name_overall)
-    
+
     return subject_stats_overall, substudy_stats_overall
 
 
@@ -391,19 +406,22 @@ def get_mixed_anova(saline_data: pd.DataFrame,
     """
     retest_saline_data = saline_data.query('Symbol==@biomarker')
     # Create column denoting Site-Rat combinations
-    retest_saline_data['Site_Rat'] = retest_saline_data['Site'].astype(str) + retest_saline_data['Rat'].astype(str)
-    
+    retest_saline_data['Site_Rat'] = (retest_saline_data['Site']
+                                      .astype(str)) + (retest_saline_data['Rat']
+                                                       .astype(str))
+
     # Perform two-way ANOVA to get mean squared error (MS)
     # attributed to Day, Substudy, and interaction term (Day *Substudy)
     # and to get sum of squared error (SS) for Between-subjects (Residual)
     twoway_aov = pg.anova(data=retest_saline_data,
                           dv='Value',
                           between=['Day', 'Substudy'])
-    
+
     MSsubstudy = twoway_aov.query("Source=='Substudy'")['MS'].values[0]
     MSday = twoway_aov.query("Source=='Day'")['MS'].values[0]
-    MSinteraction = twoway_aov.query("Source=='Day * Substudy'")['MS'].values[0]
-        
+    MSinteraction = (twoway_aov
+                     .query("Source=='Day * Substudy'")['MS'].values[0])
+
     # Perform mixed ANOVA to get degrees of freedom 2 (DF2)
     # for calculating MS Between-subjects
     # MSbetween_subjects = SSbetween_subjects / DF2
@@ -414,10 +432,11 @@ def get_mixed_anova(saline_data: pd.DataFrame,
                                within='Day',
                                subject='Site_Rat',
                                between='Substudy')
-    
+
     DF2 = mixed_aov['DF2'][0]
-    MSbetweensubjects = (twoway_aov.query("Source=='Residual'")['SS'] / DF2).values[0]
-    
+    MSbetweensubjects = (twoway_aov
+                         .query("Source=='Residual'")['SS'] / DF2).values[0]
+
     # Calculate mean squared error (MS) (i.e., total variation)
     MStot = MSsubstudy + MSday + MSinteraction + MSbetweensubjects
 
@@ -429,5 +448,5 @@ def get_mixed_anova(saline_data: pd.DataFrame,
                        (MSday / MStot)*100,
                        (MSinteraction / MStot)*100,
                        (MSbetweensubjects / MStot)*100]
-    
+
     return variance_names, variance_values

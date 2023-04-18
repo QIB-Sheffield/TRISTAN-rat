@@ -25,8 +25,11 @@ def main(study: str
     # Split control and treatment groups
     signal_dict = signals.split_groups(files, filenames)
     # Fit data and get all estimated parameter variables
-    all_parameters = signals.fit_data(study, filenames, files,
-                                     signal_dict, TristanRat)
+    all_parameters = signals.fit_data(study,
+                                      filenames,
+                                      files,
+                                      signal_dict,
+                                      TristanRat)
 
     # Get time curve averages per drug and per day
     subject_list = signals.get_subject_list(signal_dict)
@@ -74,7 +77,7 @@ def main(study: str
     # and computational fitting errors from all estimated parameter data
     print("Removing computational fitting errors and missing data")
     all_parameters_cleaned = analyses.remove_data_errors(all_parameters,
-                                                             study)
+                                                         study)
 
     # Create list of condition variables to group by
     variables = ['Drug', 'Symbol', 'Site']
@@ -83,12 +86,15 @@ def main(study: str
 
     # Obtain effect size summaries and save as csv
     print("Calculating average effect sizes")
-    analyses.save_effect_sizes(all_parameters_cleaned, params,
-                                   variables, study)
+    analyses.save_effect_sizes(all_parameters_cleaned,
+                               params,
+                               variables,
+                               study)
 
     # Plot biomarker distributions between Day 1 and Day 2 per rat
     for biomarker in params:
-        print(f"{biomarker}: Plotting individual biomarker distributions between Day 1 and Day 2")
+        print(f"{biomarker}: Plotting individual biomarker \
+              distributions between Day 1 and Day 2")
         plots.pairplots(all_parameters, str(biomarker), study)
 
     print("Done!")

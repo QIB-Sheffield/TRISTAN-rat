@@ -192,6 +192,7 @@ def get_results_folder(study: str,
 
     return save_name
 
+
 # Data cleaning
 def remove_data_errors(parameter_data: pd.DataFrame,
                        study: str
@@ -243,8 +244,8 @@ def remove_data_errors(parameter_data: pd.DataFrame,
 
 def remove_insufficient_data(parameter_data: pd.DataFrame,
                              study: str
-                            ) -> pd.DataFrame:
-     """Removes data with insufficient number of observations.
+                             ) -> pd.DataFrame:
+    """Removes data with insufficient number of observations.
 
     Removes cases where only one acquisition per subject is present
     (i.e., day 1 or day 2 data are missing), or whole substudies
@@ -257,40 +258,41 @@ def remove_insufficient_data(parameter_data: pd.DataFrame,
     Returns:
         Cleaned DataFrame.
     """
-     data_pivoted = pd.pivot_table(parameter_data,
-                                   values='Value',
-                                   columns=['Symbol'],
-                                   index=['Substudy',
-                                          'Drug',
-                                          'Site',
-                                          'Fstrength',
-                                          'Site_Fstrength',
-                                          'Time_period',
-                                          'Rat',
-                                          'Day'])
-     # Remove subjects with missing acquisition on day 1 or day 2
-     missing_days_removed = (data_pivoted[data_pivoted
-                                          .groupby(['Substudy',
-                                                    'Site',
-                                                    'Rat'])
-                                                    .transform('count') > 1]
-                                                    .dropna())
-     missing_days_removed_clean = missing_days_removed.stack().reset_index()
-     missing_days_removed_clean.rename(columns={0: 'Value'}, inplace=True)
-     
-     # Count number of substudies with only 1 subject
-     counts = missing_days_removed_clean.groupby(['Symbol',
-                                                  'Substudy',
-                                                  'Site',
-                                                  'Drug',
-                                                  'Day'])['Rat'].count()
-     
-     # Remove substudies with only 1 subject
-     substudy_to_drop = []
-     for i in counts.index:
-         if counts[i]==1:
-             substudy_to_drop.append(i[1])
-     insufficient_data_removed = missing_days_removed_clean[~missing_days_removed_clean['Substudy'].isin(substudy_to_drop)]
-     insufficient_data_removed.reset_index(drop=True, inplace=True)
-     
-     return insufficient_data_removed
+    data_pivoted = pd.pivot_table(parameter_data,
+                                  values='Value',
+                                  columns=['Symbol'],
+                                  index=['Substudy',
+                                         'Drug',
+                                         'Site',
+                                         'Fstrength',
+                                         'Site_Fstrength',
+                                         'Time_period',
+                                         'Rat',
+                                         'Day'])
+    # Remove subjects with missing acquisition on day 1 or day 2
+    missing_days_removed = (data_pivoted[data_pivoted
+                                         .groupby(['Substudy',
+                                                   'Site',
+                                                   'Rat'])
+                                         .transform('count') > 1]
+                            .dropna())
+    missing_days_removed_clean = missing_days_removed.stack().reset_index()
+    missing_days_removed_clean.rename(columns={0: 'Value'}, inplace=True)
+
+    # Count number of substudies with only 1 subject
+    counts = missing_days_removed_clean.groupby(['Symbol',
+                                                 'Substudy',
+                                                 'Site',
+                                                 'Drug',
+                                                 'Day'])['Rat'].count()
+
+    # Remove substudies with only 1 subject
+    substudy_to_drop = []
+    for i in counts.index:
+        if counts[i] == 1:
+            substudy_to_drop.append(i[1])
+    insufficient_data_removed = (missing_days_removed_clean[~missing_days_removed_clean['Substudy']
+                                                            .isin(substudy_to_drop)])
+    insufficient_data_removed.reset_index(drop=True, inplace=True)
+
+    return insufficient_data_removed

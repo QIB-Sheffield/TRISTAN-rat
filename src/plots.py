@@ -123,19 +123,16 @@ def get_deltaR1_plots(signals: dict,
     plt.rcParams["font.weight"] = 'bold'
     plt.rcParams['savefig.dpi'] = 300
     plt.rc('axes', linewidth=2)
-    plt.rc('xtick', labelsize=40) 
-    plt.rc('ytick', labelsize=40) 
+    plt.rc('xtick', labelsize=40)
+    plt.rc('ytick', labelsize=40)
 
     plt.figure(figsize=(12, 10))
     # use set_position
     ax = plt.gca()
-    #ax.spines['top'].set_color('none')
     ax.spines['left'].set_color('k')
-    #ax.spines['right'].set_color('none')
-    #ax.spines['bottom'].set_position('zero')
 
     ax.axhline(y=0, lw=3, color='k')
-    
+
     plt.errorbar(data=observed,
                  x="Time (min)", y='Control',
                  yerr=observed['Control'].std(),
@@ -165,15 +162,16 @@ def get_deltaR1_plots(signals: dict,
         g = sns.lineplot(data=observed, x="Time (min)", y='Control', ls='',)
         fig_name = f"{substudy}_{ROI}_deltaR1"
 
-    plt.suptitle(f"Group mean {ROI} gadoxetate profiles in control and inhibitory phases \n (error bars represent standard deviation)")
+    plt.suptitle(f"Group mean {ROI} gadoxetate profiles in control and \
+                 inhibitory phases \n (error bars represent \
+                 standard deviation)")
     g.set_title(f"{substudy}", weight='bold')
     g.set_xlabel("Time [min]", weight='bold')
     g.set_ylabel("\u0394 $R_{1}$ [$s^{-1}$]", weight='bold')
 
     g.set(ylim=YLIM)
-    g.set(xlim=(0,30))
+    g.set(xlim=(0, 30))
     g.get_legend().remove()
-    #g.legend(loc='best', framealpha=1)
     plt.tight_layout()
 
     save_name = data.get_results_folder(study,
@@ -183,7 +181,7 @@ def get_deltaR1_plots(signals: dict,
                                         fig_name,
                                         'png')
     plt.savefig(save_name)
-    
+
     plt.close()
 
 
@@ -209,8 +207,8 @@ def plot_distributions(study: str,
         of interest.
         variable: Variable of interest (e.g., 'Time_period').
         constant: Factor to keep constant (e.g., 'Site').
-        benchmarks: DataFrame containing biomarker benchmark values.        
-    """       
+        benchmarks: DataFrame containing biomarker benchmark values.
+    """
     plt.rcParams['savefig.dpi'] = 300
     plt.rcParams["axes.labelsize"] = 50
     plt.rcParams["axes.titlesize"] = 50
@@ -218,51 +216,72 @@ def plot_distributions(study: str,
     plt.rcParams["axes.titleweight"] = 'bold'
     plt.rcParams["font.weight"] = 'bold'
     plt.rc('axes', linewidth=2)
-    plt.rc('xtick', labelsize=40) 
-    plt.rc('ytick', labelsize=40) 
+    plt.rc('xtick', labelsize=40)
+    plt.rc('ytick', labelsize=40)
     plt.rcParams["lines.linewidth"] = 4
     plt.rcParams['lines.markersize'] = 12
-    
+
     ylabels = ['$K_{trans}$', '$k_{bh}$']
     means = benchmarks['mean']
     lower_cis = means - benchmarks['CI95']
     upper_cis = means + benchmarks['CI95']
-    
-    if constant==None:
-        
-        g = sns.catplot(data=group_data, x=variable, y='Value', col='Symbol', kind='point', 
-            capsize=0.2, sharey=False, join=False, height=14, aspect=1.2, color='k', ci=95)
+
+    if constant is None:
+        g = sns.catplot(data=group_data,
+                        x=variable,
+                        y='Value',
+                        col='Symbol',
+                        kind='point',
+                        capsize=0.2,
+                        sharey=False,
+                        join=False,
+                        height=14,
+                        aspect=1.2,
+                        color='k',
+                        ci=95)
 
         (g.set_titles("")
-        .axes[0,1].set(ylim=([0,0.4])))
-        
+         .axes[0, 1].set(ylim=([0, 0.4])))
+
         for i in range(len(ylabels)):
-            g.axes[0,i].set_ylabel(f"{ylabels[i]} [mL/min/mL]")
-            g.axes[0,i].axhline(means[i], color='blue', ls=':')
-            g.axes[0,i].axhline(lower_cis[i], color='red', ls='--')
-            g.axes[0,i].axhline(upper_cis[i], color='red', ls='--')
-        
+            g.axes[0, i].set_ylabel(f"{ylabels[i]} [mL/min/mL]")
+            g.axes[0, i].axhline(means[i], color='blue', ls=':')
+            g.axes[0, i].axhline(lower_cis[i], color='red', ls='--')
+            g.axes[0, i].axhline(upper_cis[i], color='red', ls='--')
+
     else:
-        
-        g = sns.catplot(data=group_data, x=variable, y='Value', col=constant, row='Symbol', 
-                        kind='point', capsize=0.2, sharey='row', sharex=False, join=False, height=12, aspect=0.72, color='k',
-                        ci=95, col_order=order)
+        g = sns.catplot(data=group_data,
+                        x=variable,
+                        y='Value',
+                        col=constant,
+                        row='Symbol',
+                        kind='point',
+                        capsize=0.2,
+                        sharey='row',
+                        sharex=False,
+                        join=False,
+                        height=12,
+                        aspect=0.72,
+                        color='k',
+                        ci=95,
+                        col_order=order)
 
-        g.axes[1,0].set(ylim=([0,0.4]))
-        
-        for i in range(int(len(group_data.groupby(['Symbol'] + [constant]).count().index)/2)):
-            g.axes[0,i].axhline(means[0], color='blue', ls=':') # Ktrans reference values
-            g.axes[0,i].axhline(lower_cis[0], color='red', ls='--')
-            g.axes[0,i].axhline(upper_cis[0], color='red', ls='--')
+        g.axes[1, 0].set(ylim=([0, 0.4]))
 
-            g.axes[1,i].axhline(means[1], color='blue', ls=':') # kbh reference values
-            g.axes[1,i].axhline(lower_cis[1], color='red', ls='--')
-            g.axes[1,i].axhline(upper_cis[1], color='red', ls='--')
-        
-   
-    g.axes[0,0].set(ylim=([0,1.5]))
+        for i in range(int(len(group_data.groupby(['Symbol'] + [constant])
+                               .count().index)/2)):
+            # Ktrans reference values
+            g.axes[0, i].axhline(means[0], color='blue', ls=':')
+            g.axes[0, i].axhline(lower_cis[0], color='red', ls='--')
+            g.axes[0, i].axhline(upper_cis[0], color='red', ls='--')
+            # kbh reference values
+            g.axes[1, i].axhline(means[1], color='blue', ls=':')
+            g.axes[1, i].axhline(lower_cis[1], color='red', ls='--')
+            g.axes[1, i].axhline(upper_cis[1], color='red', ls='--')
+
+    g.axes[0, 0].set(ylim=([0, 1.5]))
     g.fig.tight_layout()
-    
+
     save_name = data.get_results_folder(study,
                                         '02_analyses',
                                         'figures',
@@ -302,7 +321,7 @@ def pairplots(study: str,
         (e.g., 'rocket')
         error: Error interval for error bars (e.g., 95 for 95% CI)
         ylabels: List of labels for y-axes.
-    """   
+    """
     g = sns.catplot(data=pair_data,
                     x=x,
                     y='Value',
@@ -318,16 +337,16 @@ def pairplots(study: str,
                     ci=error)
 
     (g.set_titles("")
-     .axes[0,1].set(ylim=([0,0.4])))
-    g.axes[0,0].set(ylim=([0,1.5]))
-    
+     .axes[0, 1].set(ylim=([0, 0.4])))
+    g.axes[0, 0].set(ylim=([0, 1.5]))
+
     for ax in g.axes.flatten():
         ax.tick_params(labelleft=True, labelbottom=True)
 
     plt.legend(title='Rat', bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
     for i in range(len(ylabels)):
-        g.axes[0,i].set_ylabel(f"{ylabels[i]} [mL/min/mL]")
+        g.axes[0, i].set_ylabel(f"{ylabels[i]} [mL/min/mL]")
 
     g.fig.tight_layout()
     save_name = data.get_results_folder(study,
