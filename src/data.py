@@ -103,8 +103,8 @@ def get_metadata(filename: str,
     within the file. Works only when filename is formatted as
     a string containing study descriptors (metadata) separated
     by underscores, i.e.,
-    filename = "compound_site_RatNumber_dayNumber_dataType"
-    e.g., "Asunaprevir_E_Rat2_2_Signals"
+    filename = "substudy_compound_site_RatNumber_dayNumber_dataType"
+    e.g., "5_Asunaprevir_E_Rat2_2_Signals"
 
     Args:
         filename: File name of interest.
@@ -258,17 +258,27 @@ def remove_insufficient_data(parameter_data: pd.DataFrame,
     Returns:
         Cleaned DataFrame.
     """
-    data_pivoted = pd.pivot_table(parameter_data,
-                                  values='Value',
-                                  columns=['Symbol'],
-                                  index=['Substudy',
-                                         'Drug',
-                                         'Site',
-                                         'Fstrength',
-                                         'Site_Fstrength',
-                                         'Time_period',
-                                         'Rat',
-                                         'Day'])
+    if study=='Reproducibility':
+        data_pivoted = pd.pivot_table(parameter_data,
+                                    values='Value',
+                                    columns=['Symbol'],
+                                    index=['Substudy',
+                                            'Drug',
+                                            'Site',
+                                            'Fstrength',
+                                            'Site_Fstrength',
+                                            'Time_period',
+                                            'Rat',
+                                            'Day'])
+    else:
+        data_pivoted = pd.pivot_table(parameter_data,
+                                    values='Value',
+                                    columns=['Symbol'],
+                                    index=['Substudy',
+                                            'Drug',
+                                            'Site',
+                                            'Rat',
+                                            'Day'])
     # Remove subjects with missing acquisition on day 1 or day 2
     missing_days_removed = (data_pivoted[data_pivoted
                                          .groupby(['Substudy',

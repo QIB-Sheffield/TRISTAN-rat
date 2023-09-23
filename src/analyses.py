@@ -339,15 +339,24 @@ def get_retest_results(study: str,
         substudy average levels, respectively.
     """
     # Pivot single-subject data
-    data_per_subject = pd.pivot_table(cleaned_parameter_data,
-                                      values='Value',
-                                      index=['Substudy',
-                                             'Symbol',
-                                             'Site',
-                                             'Fstrength',
-                                             'Time_period',
-                                             'Rat'],
-                                      columns='Day')
+    if study=='Reproducibility':
+        data_per_subject = pd.pivot_table(cleaned_parameter_data,
+                                        values='Value',
+                                        index=['Substudy',
+                                                'Symbol',
+                                                'Site',
+                                                'Fstrength',
+                                                'Time_period',
+                                                'Rat'],
+                                        columns='Day')
+    else:
+        data_per_subject = pd.pivot_table(cleaned_parameter_data,
+                                        values='Value',
+                                        index=['Substudy',
+                                                'Symbol',
+                                                'Site',
+                                                'Rat'],
+                                        columns='Day')
     # Get mean substudy values
     data_per_substudy = (cleaned_parameter_data
                          .groupby(['Substudy',
