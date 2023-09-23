@@ -97,14 +97,14 @@ results/
 |    |     |
 |    |     |---- 01_model_outputs/
 |    |     |    |---- figures/
-|    |     |    |       |---- per_drug/
+|    |     |    |       |---- per_substudy/
 |    |     |    |       |---- per_rat/
 |    |     |    |---- relaxation_rates_and_signals
 |    |     |    |---- all_parameters.csv
-|    |     |---- 02_effect_sizes/
-|    |     |    |---- figures/
-|    |     |    |---- effect_sizes.csv
 |    |     |    |---- fit_errors.txt
+|    |     |---- 02_analyses/
+|    |     |    |---- figures/
+|    |     |    |---- repeatability/
 ```
 
 As the tracer kinetic model used in this study produces estimated parameter
@@ -113,7 +113,11 @@ Therefore, upon each execution of the code, a top-level directory named after
 the date the analysis was conducted is created for storing the results from
 that particular execution. For reference, the results and figures presented in
 the accompanying manuscript to the `Six Test Compounds` study were created using the
-outputs contained in `results/SixTestCompounds/2022-09-01`.
+outputs contained in `results/SixTestCompounds/2022-09-01`. Please note that the
+results contained in the Zenodo archive were created using a previous release of this
+software (https://github.com/QIB-Sheffield/TRISTAN-rat/releases/tag/v1.0.0) which
+ouput a slightly modified results folder structure. Please see the previous version
+notes for more details.
 
 `01_model_ouputs` contains all outputs generated as result of the tracer kinetic
 model fitting. Within this, plotted signal time curves for each acquistion per 
