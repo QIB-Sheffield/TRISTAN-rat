@@ -27,8 +27,11 @@ def main(study: str
     # Split control and treatment groups
     signal_dict = signals.split_groups(files, filenames)
     # Fit data and get all estimated parameter variables
-    all_parameters = signals.fit_data(study, filenames, files,
-                                      signal_dict, TristanRat)
+    all_parameters = signals.fit_data(study,
+                                      filenames,
+                                      files,
+                                      signal_dict,
+                                      TristanRat)
 
     # Get time curve averages per drug and per day
     subject_list = signals.get_subject_list(signal_dict)
@@ -363,7 +366,8 @@ def main(study: str
                     None,
                     'rocket',
                     95,
-                    ylabels=['$K_{trans}$', '$k_{bh}$'])
+                    ylabels=['$K_{trans}$', '$k_{bh}$'],
+                    sharey=False)
     # plot saline-rifampicin data
     print("saline-rifampicin: Plotting individual biomarker distributions between Day 1 and Day 2")
     plots.pairplots(study,
@@ -375,7 +379,8 @@ def main(study: str
                     None,
                     'rocket',
                     95,
-                    ylabels=['$K_{trans}$', '$k_{bh}$'])
+                    ylabels=['$K_{trans}$', '$k_{bh}$'],
+                    sharey=False)
 
     # MIXED ANOVA (saline retest data)
     print("Performing mixed ANOVA for saline-saline retest data")

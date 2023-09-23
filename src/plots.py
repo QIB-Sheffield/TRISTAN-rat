@@ -163,8 +163,8 @@ def get_deltaR1_plots(signals: dict,
         fig_name = f"{substudy}_{ROI}_deltaR1"
 
     plt.suptitle(f"Group mean {ROI} gadoxetate profiles in control and \
-                 inhibitory phases \n (error bars represent \
-                 standard deviation)")
+                 \n inhibitory phases \
+                 \n (error bars represent standard deviation)")
     g.set_title(f"{substudy}", weight='bold')
     g.set_xlabel("Time [min]", weight='bold')
     g.set_ylabel("\u0394 $R_{1}$ [$s^{-1}$]", weight='bold')
@@ -302,6 +302,7 @@ def pairplots(study: str,
               palette: str,
               error: int,
               ylabels: list,
+              sharey: 'str'
               ) -> None:
     """Plots paired data distributions per biomarker.
 
@@ -329,24 +330,28 @@ def pairplots(study: str,
                     col=col,
                     row=row,
                     kind="point",
-                    sharey=False,
+                    sharey=sharey,
                     palette=palette,
                     height=8,
                     aspect=1,
                     legend=False,
                     ci=error)
-
-    (g.set_titles("")
-     .axes[0, 1].set(ylim=([0, 0.4])))
-    g.axes[0, 0].set(ylim=([0, 1.5]))
+    
+    if study=='Reproducibility':
+        (g.set_titles("")
+         .axes[0, 1].set(ylim=([0, 0.4])))
+        g.axes[0, 0].set(ylim=([0, 1.5]))
+        for i in range(len(ylabels)):
+            g.axes[0, i].set_ylabel(f"{ylabels[i]} [mL/min/mL]")
+    else:
+        g.set_titles(template='{col_name}')
+        for i in range(len(ylabels)):
+            g.axes[i, 0].set_ylabel(f"{ylabels[i]} [mL/min/mL]")
 
     for ax in g.axes.flatten():
         ax.tick_params(labelleft=True, labelbottom=True)
 
-    plt.legend(title='Rat', bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-
-    for i in range(len(ylabels)):
-        g.axes[0, i].set_ylabel(f"{ylabels[i]} [mL/min/mL]")
+    plt.legend(title=hue, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
     g.fig.tight_layout()
     save_name = data.get_results_folder(study,
