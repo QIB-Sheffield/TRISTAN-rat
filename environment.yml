@@ -1,0 +1,13 @@
+name: TRISTAN-rat
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.7
+  - pandas
+  - numpy
+  - matplotlib
+  - scipy
+  - seaborn
+  - pingouin
+  

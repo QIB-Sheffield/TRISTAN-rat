@@ -49,15 +49,11 @@ directory:
 
 4. From the project root directory, run the following command to create a separate virtual environment:
 
-        conda create --name <environment_name> python=3.7
+        conda env create -f environment.yml
 
 5. Activate the virtual environment:
     
-        conda activate <environment_name>
-
-6. Install required Python dependencies:
-
-        pip install -r requirements.txt
+        conda activate TRISTAN-rat
 
 
 ## Running the scripts
